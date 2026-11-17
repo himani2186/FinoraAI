@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% set no_shell = true %}
+
+{% block title %}Finora AI — About Us{% endblock %}
+
+{% block head %}
+<style>
+  .about-page-wrap {
+    min-height: 100vh;
+    background: radial-gradient(circle at 40% 20%, rgba(124, 58, 237, 0.25) 0%, rgba(15, 10, 30, 0.98) 75%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  .about-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3.5rem;
+    background: rgba(15, 10, 30, 0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+  }
+  .about-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    flex: 1;
+  }
+  .about-hero {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem auto;
+  }
+  .about-hero h1 {
+    font-size: clamp(2.4rem, 4.2vw, 3.4rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1.25rem;
+  }
+  .about-hero p {
+    color: #a78bfa;
+    font-size: 1.15rem;
+    line-height: 1.6;
+  }
+  .about-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-bottom: 4rem;
+  }
+  .about-card {
+    background: rgba(26, 14, 56, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 24px;
+    padding: 2.5rem;
+    backdrop-filter: blur(16px);
+  }
+  .about-card h3 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1rem;
+  }
+  .about-card p {
+    color: #cbd5e1;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  @media (max-width: 950px) {
+    .about-cards-grid { grid-template-columns: 1fr; }
+    .about-nav { padding: 1rem 1.5rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-page-wrap">
+  <header class="about-nav">
+    <a href="{{ url_for('index') }}" style="text-decoration:none; display:flex; align-items:center; gap:0.75rem;">
+      <div style="width:40px; height:40px; background:linear-gradient(135deg, #7c3aed, #9333ea); border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff;">F</div>
+      <span style="font-size:1.3rem; font-weight:800; color:#fff;">Finora AI</span>
+    </a>
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <a href="{{ url_for('index') }}" style="color:#a78bfa; text-decoration:none; font-weight:600; font-size:0.95rem;">&larr; Back to Home</a>
+      <a href="{{ url_for('register') }}" style="background:linear-gradient(135deg, #7c3aed, #9333ea); color:#fff; padding:0.6rem 1.3rem; border-radius:12px; text-decoration:none; font-weight:700; font-size:0.95rem;">Get Started</a>
+    </div>
+  </header>
+
+  <main class="about-container">
+    <div class="about-hero">
+      <span style="display:inline-block; padding:0.35rem 1rem; background:rgba(124,58,237,0.2); border:1px solid rgba(168,85,247,0.4); border-radius:999px; color:#c084fc; font-size:0.85rem; font-weight:700; text-transform:uppercase; margin-bottom:1rem;">Our Mission</span>
+      <h1>Making Financial Intelligence Effortless for Everyone</h1>
+      <p>Finora AI was born from a simple observation: modern payment rails make spending money frictionless, but managing expenses remains manual, tedious, and stressful. We are here to change that.</p>
+    </div>
+
+    <div class="about-cards-grid">
+      <div class="about-card">
+        <h3>🚀 Our Vision</h3>
+        <p>To provide every earner and household with a personal, intelligent CFO powered by generative AI. We want to eliminate financial anxiety by turning raw bank alerts into clear, forward-looking financial decisions.</p>
+      </div>
+
+      <div class="about-card">
+        <h3>💡 Why Finora AI?</h3>
+        <p>Unlike traditional spreadsheets or cumbersome budgeting software, Finora AI meets you where your money already flows: your UPI and SMS bank alerts. Combined with Google Gemini's reasoning capabilities, Finora provides actionable advice you can actually understand and follow.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center; padding:3rem 2rem; background:rgba(26,14,56,0.5); border:1px solid rgba(124,58,237,0.25); border-radius:24px;">
+      <h3 style="font-size:1.8rem; font-weight:800; margin-bottom:1rem;">Ready to take control of your financial future?</h3>
+      <p style="color:#a78bfa; margin-bottom:2rem; max-width:500px; margin-left:auto; margin-right:auto;">Join thousands of smart spenders who let Finora AI do the heavy lifting.</p>
+      <a href="{{ url_for('register') }}" style="display:inline-block; background:linear-gradient(135deg, #7c3aed, #9333ea); color:#fff; padding:0.9rem 2.2rem; border-radius:12px; font-weight:700; text-decoration:none; box-shadow:0 6px 20px rgba(124,58,237,0.5);">Create Free Account &rarr;</a>
+    </div>
+  </main>
+</div>
+{% endblock %}

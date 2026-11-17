@@ -1,0 +1,492 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — AI-Based Spending Prediction{% endblock %}
+
+{% block head %}
+<style>
+  .page-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-left-badge {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .header-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.2));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+  }
+  .header-text h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+  .header-text p {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin: 0.25rem 0 0 0;
+  }
+
+  .month-dropdown-btn {
+    background: rgba(30, 16, 64, 0.7);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    color: #ffffff;
+    padding: 0.65rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .month-dropdown-btn:hover {
+    border-color: #a855f7;
+    background: rgba(45, 22, 95, 0.75);
+  }
+
+  /* TOP ROW: Prediction Chart (Left) + Key Insights (Right) */
+  .pred-top-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .pred-chart-card {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.75rem 2rem;
+    position: relative;
+    backdrop-filter: blur(14px);
+  }
+  .pred-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  .pred-metric-title {
+    font-size: 0.85rem;
+    color: #a78bfa;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .pred-metric-val {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+  }
+  .trend-down-pill {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: #4ade80;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* Key Insights Card */
+  .insights-card {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.75rem 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(14px);
+  }
+  .insights-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.5rem;
+  }
+  .insights-header h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+  }
+  .insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+  .check-circle-green {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .insight-text {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+
+  /* BOTTOM ROW: Category-wise (Left) + Mascot with CTA (Right) */
+  .pred-bottom-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .cat-pred-section {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.75rem 1.8rem;
+  }
+  .cat-pred-section h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 1.25rem 0;
+  }
+  .cat-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .cat-mini-card {
+    background: rgba(22, 12, 46, 0.7);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 18px;
+    padding: 1.25rem 0.85rem;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+  .cat-mini-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(168, 85, 247, 0.5);
+  }
+  .cat-mini-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .cat-mini-name {
+    font-size: 0.85rem;
+    color: #a78bfa;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .cat-mini-amt {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.35rem;
+  }
+  .badge-pct-diff {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    display: inline-block;
+  }
+  .badge-pct-diff.red {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .badge-pct-diff.green {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .badge-pct-diff.neutral {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  /* Mascot CTA Card */
+  .mascot-cta-card {
+    background: radial-gradient(circle at 60% 40%, rgba(124, 58, 237, 0.35) 0%, rgba(20, 10, 35, 0.9) 70%);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 24px;
+    padding: 1.5rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .mascot-cta-card img {
+    width: 220px;
+    max-height: 180px;
+    filter: drop-shadow(0 15px 30px rgba(6, 182, 212, 0.3));
+    animation: floatMascot 4s ease-in-out infinite;
+  }
+  .btn-personal-tips {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 0.85rem 1.8rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+    transition: all 0.25s ease;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+  .btn-personal-tips:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.7);
+  }
+
+  @media (max-width: 950px) {
+    .pred-top-grid, .pred-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+    .cat-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-row">
+  <div class="header-left-badge">
+    <div class="header-icon-box">📈</div>
+    <div class="header-text">
+      <h1>AI-Based Spending Prediction</h1>
+      <p>Know what to expect, plan better</p>
+    </div>
+  </div>
+
+  <div>
+    <button class="month-dropdown-btn">
+      <span>Next Month</span>
+      <span>▼</span>
+    </button>
+  </div>
+</div>
+
+<!-- TOP ROW: Chart & Insights -->
+<div class="pred-top-grid">
+
+  <!-- Prediction Line Chart Card -->
+  <div class="pred-chart-card">
+    <div class="pred-chart-header">
+      <div>
+        <div class="pred-metric-title">Predicted Spending</div>
+        <div class="pred-metric-val">
+          <span>₹14,800</span>
+          <span class="trend-down-pill">
+            <span>↓ 6%</span>
+            <span>vs last month</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart Container -->
+    <div style="height: 180px; position: relative;">
+      <canvas id="predictionChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Key Insights Card -->
+  <div class="insights-card">
+    <div class="insights-header">
+      <span style="font-size: 1.4rem;">💡</span>
+      <h3>Key Insights</h3>
+    </div>
+
+    <div class="insights-list">
+      <div class="insight-item">
+        <div class="check-circle-green">✓</div>
+        <div class="insight-text">
+          Your spending is expected to decrease by <strong>6%</strong> next month.
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="check-circle-green">✓</div>
+        <div class="insight-text">
+          Food &amp; Dining may increase by <strong>~15%</strong>.
+        </div>
+      </div>
+
+      <div class="insight-item">
+        <div class="check-circle-green">✓</div>
+        <div class="insight-text">
+          You can save around <strong>₹800</strong> if you stick to your current budget.
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size: 0.8rem; color: #64748b; margin-top: 1rem;">
+      * Projections generated using Finora Gemini Time-Series ML Model.
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM ROW: Category breakdown & Mascot CTA -->
+<div class="pred-bottom-grid">
+
+  <!-- Category-wise Prediction -->
+  <div class="cat-pred-section">
+    <h3>Category-wise Prediction</h3>
+    <div class="cat-cards-grid">
+      <!-- Food -->
+      <div class="cat-mini-card">
+        <div class="cat-mini-icon">🍽️</div>
+        <div class="cat-mini-name">Food</div>
+        <div class="cat-mini-amt">₹3,800</div>
+        <span class="badge-pct-diff red">(+15%)</span>
+      </div>
+
+      <!-- Shopping -->
+      <div class="cat-mini-card">
+        <div class="cat-mini-icon">🛒</div>
+        <div class="cat-mini-name">Shopping</div>
+        <div class="cat-mini-amt">₹3,200</div>
+        <span class="badge-pct-diff green">(-5%)</span>
+      </div>
+
+      <!-- Transport -->
+      <div class="cat-mini-card">
+        <div class="cat-mini-icon">🚗</div>
+        <div class="cat-mini-name">Transport</div>
+        <div class="cat-mini-amt">₹1,400</div>
+        <span class="badge-pct-diff green">(-8%)</span>
+      </div>
+
+      <!-- Bills -->
+      <div class="cat-mini-card">
+        <div class="cat-mini-icon">⚡</div>
+        <div class="cat-mini-name">Bills</div>
+        <div class="cat-mini-amt">₹2,100</div>
+        <span class="badge-pct-diff neutral">(0%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Robot Mascot with CTA -->
+  <div class="mascot-cta-card">
+    <img src="{{ url_for('static', filename='images/robot-forecast.svg') }}" alt="Finora AI Forecast Mascot" />
+    <a href="{{ url_for('ai_assistant') }}" class="btn-personal-tips">
+      <span>Get Personalized Tips</span>
+      <span>&rarr;</span>
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('predictionChart');
+    if (!ctx) return;
+
+    const chartCtx = ctx.getContext('2d');
+    const gradient = chartCtx.createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, 'rgba(6, 182, 212, 0.35)');
+    gradient.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+
+    new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: ['Nov', 'Dec', 'Jan'],
+        datasets: [{
+          label: 'Spending',
+          data: [15700, 15200, 14800],
+          borderColor: '#06b6d4',
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          backgroundColor: gradient,
+          pointBackgroundColor: '#06b6d4',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: [5, 5, 7],
+          pointHoverRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15, 10, 30, 0.9)',
+            borderColor: '#06b6d4',
+            borderWidth: 1,
+            titleColor: '#ffffff',
+            bodyColor: '#38bdf8',
+            callbacks: {
+              label: function(context) {
+                return '₹' + context.parsed.y.toLocaleString('en-IN');
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#94a3b8', font: { weight: 600 } }
+          },
+          y: {
+            display: false,
+            min: 13000,
+            max: 16500
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — UPI & SMS Analyzer{% endblock %}
+
+{% block head %}
+<style>
+  .analyzer-header {
+    margin-bottom: 2rem;
+  }
+  .analyzer-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .analyzer-subtitle {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+
+  .analyzer-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  /* Left Panel: Input & Result */
+  .analyzer-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .input-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 22px;
+    padding: 1.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+  }
+
+  .sms-textarea {
+    width: 100%;
+    min-height: 140px;
+    background: rgba(15, 10, 30, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 14px;
+    padding: 1.1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: all 0.25s ease;
+    margin-bottom: 1.25rem;
+  }
+  .sms-textarea:focus {
+    outline: none;
+    border-color: #a855f7;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+  }
+  .sms-textarea::placeholder {
+    color: #64748b;
+  }
+
+  .sample-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .chip {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 8px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.75rem;
+    color: #c084fc;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover {
+    background: rgba(124, 58, 237, 0.35);
+    color: #ffffff;
+  }
+
+  .btn-analyze {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.85rem 1.8rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-analyze:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+  }
+
+  /* Extracted Result Card */
+  .result-card {
+    background: rgba(30, 16, 64, 0.75);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 22px;
+    padding: 1.6rem 1.75rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+  }
+  .result-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+  }
+
+  .extracted-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .extracted-box {
+    background: rgba(15, 10, 30, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 14px;
+    padding: 0.85rem 0.9rem;
+  }
+  .extracted-box .field-label {
+    font-size: 0.75rem;
+    color: #a78bfa;
+    margin-bottom: 0.35rem;
+  }
+  .extracted-box .field-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .btn-save-txn {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 0.8rem 1.75rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  .btn-save-txn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+  }
+
+  /* Right Phone Graphic */
+  .analyzer-right {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  .phone-visual {
+    width: 100%;
+    max-width: 380px;
+    filter: drop-shadow(0 20px 35px rgba(124, 58, 237, 0.45));
+    animation: floatPhone 4s ease-in-out infinite;
+  }
+  @keyframes floatPhone {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @media (max-width: 950px) {
+    .analyzer-grid {
+      grid-template-columns: 1fr;
+    }
+    .analyzer-right {
+      order: -1;
+    }
+    .extracted-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analyzer-header">
+  <h1 class="analyzer-title">
+    <span>✉️</span> UPI & SMS Analyzer
+  </h1>
+  <p class="analyzer-subtitle">Paste your bank SMS alerts and let Finora AI extract transaction details.</p>
+</div>
+
+<div class="analyzer-grid">
+  <!-- Left Side: Input & Result Card -->
+  <div class="analyzer-left">
+    <!-- Input Card -->
+    <div class="input-card">
+      <div class="sample-chips">
+        <span class="chip" onclick="setSample(1)">Swiggy UPI SMS</span>
+        <span class="chip" onclick="setSample(2)">Amazon Refund SMS</span>
+        <span class="chip" onclick="setSample(3)">Salary Credit SMS</span>
+      </div>
+
+      <textarea id="smsInput" class="sms-textarea" placeholder="Paste your SMS messages here...&#10;(e.g. Rs. 500 debited from your account for UPI payment at Swiggy.)"></textarea>
+
+      <button type="button" class="btn-analyze" id="analyzeBtn" onclick="analyzeSms()">
+        Analyze SMS <span>+</span>
+      </button>
+    </div>
+
+    <!-- Extracted Transaction Result Card -->
+    <div class="result-card" id="resultCard" style="display: none;">
+      <h3 class="result-title">Extracted Transaction</h3>
+
+      <div class="extracted-grid">
+        <div class="extracted-box">
+          <div class="field-label">Amount</div>
+          <div class="field-value" id="resAmount">₹500</div>
+        </div>
+        <div class="extracted-box">
+          <div class="field-label">Merchant</div>
+          <div class="field-value" id="resMerchant">Swiggy</div>
+        </div>
+        <div class="extracted-box">
+          <div class="field-label">Type</div>
+          <div class="field-value" id="resType" style="color: #f87171;">Expense</div>
+        </div>
+        <div class="extracted-box">
+          <div class="field-label">Category</div>
+          <div class="field-value" id="resCategory">Food & Dining</div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-save-txn" id="saveBtn" onclick="saveExtractedTransaction()">
+        Save Transaction <span>&rarr;</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Right Side: Glowing UPI Smartphone Illustration -->
+  <div class="analyzer-right">
+    <img src="{{ url_for('static', filename='images/upi-phone.svg') }}" alt="UPI Analyzer Phone" class="phone-visual" />
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentExtracted = null;
+
+function setSample(type) {
+  const textarea = document.getElementById('smsInput');
+  if (type === 1) {
+    textarea.value = "Rs. 500.00 debited from your account **1234 on 03-Feb-2026 for UPI payment to Swiggy. Ref: UPI/20260203.";
+  } else if (type === 2) {
+    textarea.value = "INR 1,200.00 credited to your A/c **1234 from Amazon Refund. Available balance is Rs 34,500.";
+  } else if (type === 3) {
+    textarea.value = "Your A/c **1234 is credited with Rs 25,000.00 on 01-Feb-2026 towards Salary Credit from Employer Inc.";
+  }
+}
+
+async function analyzeSms() {
+  const smsText = document.getElementById('smsInput').value.trim();
+  if (!smsText) {
+    alert('Please paste an SMS text first.');
+    return;
+  }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.innerText = 'Analyzing...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/analyze-sms', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sms: smsText })
+    });
+    const data = await res.json();
+
+    if (data.success && data.data) {
+      currentExtracted = data.data;
+      document.getElementById('resAmount').innerText = '₹' + (currentExtracted.amount || 0);
+      document.getElementById('resMerchant').innerText = currentExtracted.merchant || 'Unknown';
+      document.getElementById('resType').innerText = (currentExtracted.type || 'expense').toUpperCase();
+      document.getElementById('resType').style.color = currentExtracted.type === 'income' ? '#4ade80' : '#f87171';
+      document.getElementById('resCategory').innerText = currentExtracted.category || 'General';
+      document.getElementById('resultCard').style.display = 'block';
+    } else {
+      alert(data.error || 'Could not parse SMS. Please check format.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Failed to analyze SMS. Please try again.');
+  } finally {
+    btn.innerHTML = 'Analyze SMS <span>+</span>';
+    btn.disabled = false;
+  }
+}
+
+async function saveExtractedTransaction() {
+  if (!currentExtracted) return;
+
+  const btn = document.getElementById('saveBtn');
+  btn.innerText = 'Saving...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/transactions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount: currentExtracted.amount,
+        merchant: currentExtracted.merchant,
+        category: currentExtracted.category,
+        type: currentExtracted.type,
+        description: currentExtracted.merchant ? ('Payment at ' + currentExtracted.merchant) : 'SMS Transaction',
+        source: 'sms'
+      })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      alert('Transaction saved successfully!');
+      window.location.href = "{{ url_for('transactions') }}";
+    } else {
+      alert(data.error || 'Failed to save transaction.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error saving transaction.');
+  } finally {
+    btn.innerHTML = 'Save Transaction <span>&rarr;</span>';
+    btn.disabled = false;
+  }
+}
+</script>
+{% endblock %}

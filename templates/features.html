@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% set no_shell = true %}
+
+{% block title %}Finora AI — Powerful Features{% endblock %}
+
+{% block head %}
+<style>
+  .features-page-wrap {
+    min-height: 100vh;
+    background: radial-gradient(circle at 60% 20%, rgba(124, 58, 237, 0.25) 0%, rgba(15, 10, 30, 0.98) 75%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  .features-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3.5rem;
+    background: rgba(15, 10, 30, 0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+  }
+  .features-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    flex: 1;
+  }
+  .features-hero {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 4rem auto;
+  }
+  .features-hero h1 {
+    font-size: clamp(2.4rem, 4vw, 3.2rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+  .features-hero p {
+    color: #a78bfa;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  .feat-showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .feat-card {
+    background: rgba(26, 14, 56, 0.6);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 20px;
+    padding: 2.2rem 1.8rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .feat-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(168, 85, 247, 0.6);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(124, 58, 237, 0.3);
+  }
+  .feat-icon {
+    font-size: 2rem;
+    margin-bottom: 1.25rem;
+  }
+  .feat-card h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+  }
+  .feat-card p {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .feat-badge {
+    align-self: flex-start;
+    padding: 0.3rem 0.8rem;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 999px;
+    color: #c084fc;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  @media (max-width: 950px) {
+    .feat-showcase-grid { grid-template-columns: 1fr; }
+    .features-nav { padding: 1rem 1.5rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="features-page-wrap">
+  <header class="features-nav">
+    <a href="{{ url_for('index') }}" class="sidebar-logo" style="text-decoration:none; display:flex; align-items:center; gap:0.75rem;">
+      <div style="width:40px; height:40px; background:linear-gradient(135deg, #7c3aed, #9333ea); border-radius:12px; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff;">F</div>
+      <span style="font-size:1.3rem; font-weight:800; color:#fff;">Finora AI</span>
+    </a>
+    <div style="display:flex; gap:1rem; align-items:center;">
+      <a href="{{ url_for('index') }}" style="color:#a78bfa; text-decoration:none; font-weight:600; font-size:0.95rem;">&larr; Back to Home</a>
+      <a href="{{ url_for('register') }}" style="background:linear-gradient(135deg, #7c3aed, #9333ea); color:#fff; padding:0.6rem 1.3rem; border-radius:12px; text-decoration:none; font-weight:700; font-size:0.95rem;">Get Started</a>
+    </div>
+  </header>
+
+  <main class="features-container">
+    <div class="features-hero">
+      <span style="display:inline-block; padding:0.35rem 1rem; background:rgba(124,58,237,0.2); border:1px solid rgba(168,85,247,0.4); border-radius:999px; color:#c084fc; font-size:0.85rem; font-weight:700; text-transform:uppercase; margin-bottom:1rem;">All Capabilities</span>
+      <h1>Built for the Next Generation of Financial Freedom</h1>
+      <p>Explore the full suite of automated AI intelligence, regex bank parsing, dynamic budgeting, predictive forecasting, and visual health engines in Finora AI.</p>
+    </div>
+
+    <div class="feat-showcase-grid">
+      <!-- 1. UPI & SMS -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">📱</div>
+          <h3>UPI & SMS Auto-Extraction</h3>
+          <p>Instantly extract merchants, amounts, and dates from bank transaction alerts across SBI, HDFC, ICICI, Axis, PayTM, PhonePe, and Google Pay with precision regex.</p>
+        </div>
+        <span class="feat-badge">Regex Engine</span>
+      </div>
+
+      <!-- 2. Gemini AI -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">🤖</div>
+          <h3>Google Gemini AI Advisor</h3>
+          <p>Receive proactive, contextual financial advice tailored to your active spending profile, emergency fund calculations, and category threshold suggestions.</p>
+        </div>
+        <span class="feat-badge">AI Integration</span>
+      </div>
+
+      <!-- 3. Smart Budget Alerts (NEW) -->
+      <div class="feat-card" style="border-color: rgba(239, 68, 68, 0.4); background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.15), rgba(26, 14, 56, 0.7));">
+        <div>
+          <div class="feat-icon">🔔</div>
+          <h3 style="color:#fca5a5;">Smart Budget Alerts</h3>
+          <p>Get notified before you exceed your budget. Dynamic thresholds trigger real-time color-coded warnings (Yellow at 75%, Red Glowing Alert at 90%+).</p>
+        </div>
+        <span class="feat-badge" style="background:rgba(239,68,68,0.2); border-color:rgba(239,68,68,0.5); color:#fca5a5;">Early Warning Engine</span>
+      </div>
+
+      <!-- 4. Spending Prediction (NEW) -->
+      <div class="feat-card" style="border-color: rgba(6, 182, 212, 0.4); background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.15), rgba(26, 14, 56, 0.7));">
+        <div>
+          <div class="feat-icon">🔮</div>
+          <h3 style="color:#67e8f9;">AI Spending Prediction</h3>
+          <p>Forecast next month's cash outflow using machine learning trends across Food, Shopping, Transport, and Utilities so you can plan ahead effortlessly.</p>
+        </div>
+        <span class="feat-badge" style="background:rgba(6,182,212,0.2); border-color:rgba(6,182,212,0.5); color:#67e8f9;">Predictive Analytics</span>
+      </div>
+
+      <!-- 5. Financial Health Score (NEW) -->
+      <div class="feat-card" style="border-color: rgba(16, 185, 129, 0.4); background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.15), rgba(26, 14, 56, 0.7));">
+        <div>
+          <div class="feat-icon">❤️‍🩹</div>
+          <h3 style="color:#6ee7b7;">Financial Health Score</h3>
+          <p>An interactive 0–100 wellness gauge evaluated on 4 critical pillars: Savings Rate, Budget Discipline, Expense Control, and Long-Term Goal Progress.</p>
+        </div>
+        <span class="feat-badge" style="background:rgba(16,185,129,0.2); border-color:rgba(16,185,129,0.5); color:#6ee7b7;">Gamified Wellness</span>
+      </div>
+
+      <!-- 6. Chart.js Visuals -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">📊</div>
+          <h3>Chart.js Visual Analytics</h3>
+          <p>Understand your money flow through real-time expense donut breakdowns, 6-month comparative cashflow curves, and monthly category trends.</p>
+        </div>
+        <span class="feat-badge">Data Visualization</span>
+      </div>
+
+      <!-- 7. Budget Planner -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">🎯</div>
+          <h3>Budget Planner & Guardrails</h3>
+          <p>Allocate monthly spending limits per category with responsive progress indicators and dynamic remaining balance calculations.</p>
+        </div>
+        <span class="feat-badge">Budget Control</span>
+      </div>
+
+      <!-- 8. Privacy & Security -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">🔒</div>
+          <h3>Encrypted Sessions & Privacy</h3>
+          <p>Full password protection with secure PBKDF2 hashing algorithms, strict CORS controls, and isolated user session management.</p>
+        </div>
+        <span class="feat-badge">Bank-Grade Security</span>
+      </div>
+
+      <!-- 9. Transaction Ledger -->
+      <div class="feat-card">
+        <div>
+          <div class="feat-icon">⚡</div>
+          <h3>Fast One-Click Logging</h3>
+          <p>Add manual cash expenses or let the automated parser save verified transactions straight into your persistent SQLite/PostgreSQL ledger.</p>
+        </div>
+        <span class="feat-badge">Database Storage</span>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

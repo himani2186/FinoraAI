@@ -1,0 +1,712 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Dashboard{% endblock %}
+
+{% block head %}
+<style>
+  .dashboard-header {
+    margin-bottom: 2rem;
+  }
+  .dashboard-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+  .dashboard-subtitle {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+
+  /* Stat Cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    padding: 1.4rem 1.4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 58, 237, 0.5);
+  }
+  .stat-info .label {
+    font-size: 0.85rem;
+    color: #a78bfa;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .stat-info .value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+  }
+  .trend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .trend-up-green {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .trend-up-red {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+  .icon-income {
+    background: rgba(34, 197, 94, 0.18);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  .icon-expenses {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+  .icon-savings {
+    background: rgba(168, 85, 247, 0.18);
+    color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+  }
+  .icon-budget {
+    background: rgba(6, 182, 212, 0.18);
+    color: #06b6d4;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+  }
+
+  /* Charts Grid */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .chart-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 22px;
+    padding: 1.5rem 1.6rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+  }
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+  }
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .filter-select {
+    background: rgba(15, 10, 30, 0.7);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 10px;
+    padding: 0.35rem 0.8rem;
+    color: #a78bfa;
+    font-size: 0.82rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .donut-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 220px;
+  }
+  .donut-canvas-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+  }
+  .donut-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+  .donut-center-text .amount {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .donut-center-text .sub {
+    font-size: 0.72rem;
+    color: #a78bfa;
+  }
+
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+    padding-left: 1.5rem;
+  }
+  .legend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+  }
+  .legend-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #cbd5e1;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .legend-pct {
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  /* Bottom Row Grid */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 1.5rem;
+  }
+
+  /* Recent Transactions */
+  .txns-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 22px;
+    padding: 1.5rem 1.6rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  }
+  .view-all-link {
+    color: #a78bfa;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .view-all-link:hover {
+    color: #c084fc;
+    text-decoration: underline;
+  }
+  .txn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .txn-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.9rem;
+    background: rgba(15, 10, 30, 0.5);
+    border-radius: 14px;
+    border: 1px solid rgba(124, 58, 237, 0.15);
+    transition: background 0.2s;
+  }
+  .txn-item:hover {
+    background: rgba(26, 13, 53, 0.8);
+  }
+  .txn-item-left {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+  }
+  .txn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .txn-meta .title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .txn-meta .category {
+    font-size: 0.78rem;
+    color: #94a3b8;
+  }
+  .txn-item-right {
+    text-align: right;
+  }
+  .txn-amount {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+  .txn-date {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  .amount-expense {
+    color: #ffffff;
+  }
+  .amount-income {
+    color: #4ade80;
+  }
+
+  /* AI Insight Card */
+  .insight-card {
+    background: linear-gradient(135deg, rgba(30, 16, 64, 0.85) 0%, rgba(59, 21, 107, 0.8) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 22px;
+    padding: 1.6rem 1.6rem;
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.25);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .insight-sparkle {
+    font-size: 1.1rem;
+    color: #38bdf8;
+  }
+  .insight-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+  .insight-text {
+    font-size: 0.92rem;
+    color: #e2e8f0;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+  }
+  .insight-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn-insight {
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 0.55rem 1.2rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    transition: transform 0.2s;
+  }
+  .btn-insight:hover {
+    transform: translateY(-2px);
+    color: #fff;
+  }
+  .insight-robot-thumb {
+    width: 65px;
+    height: 65px;
+    filter: drop-shadow(0 4px 10px rgba(6, 182, 212, 0.4));
+  }
+
+  @media (max-width: 1100px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .charts-grid, .bottom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 650px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+  <h1 class="dashboard-title">Welcome back, {{ current_user.full_name if current_user else 'Himani' }}!</h1>
+  <p class="dashboard-subtitle">Here's your financial overview for this month.</p>
+</div>
+
+<!-- 4 Top Stat Cards -->
+<div class="stats-grid">
+  <!-- Total Income -->
+  <div class="stat-card">
+    <div class="stat-info">
+      <div class="label">Total Income</div>
+      <div class="value">₹{{ '{:,.0f}'.format(stats.income if stats else 25000) }}</div>
+      <span class="trend-badge trend-up-green">
+        &uarr; +12%
+      </span>
+    </div>
+    <div class="stat-icon-wrapper icon-income">
+      💳
+    </div>
+  </div>
+
+  <!-- Total Expenses -->
+  <div class="stat-card">
+    <div class="stat-info">
+      <div class="label">Total Expenses</div>
+      <div class="value">₹{{ '{:,.0f}'.format(stats.expenses if stats else 12500) }}</div>
+      <span class="trend-badge trend-up-red">
+        &uarr; +8%
+      </span>
+    </div>
+    <div class="stat-icon-wrapper icon-expenses">
+      🛒
+    </div>
+  </div>
+
+  <!-- Savings -->
+  <div class="stat-card">
+    <div class="stat-info">
+      <div class="label">Savings</div>
+      <div class="value">₹{{ '{:,.0f}'.format(stats.savings if stats else 12500) }}</div>
+      <span class="trend-badge trend-up-green">
+        &uarr; +20%
+      </span>
+    </div>
+    <div class="stat-icon-wrapper icon-savings">
+      🐷
+    </div>
+  </div>
+
+  <!-- Monthly Budget -->
+  <div class="stat-card">
+    <div class="stat-info">
+      <div class="label">Monthly Budget</div>
+      <div class="value">₹20,000</div>
+      <span class="trend-badge" style="background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3);">
+        &darr; 46% left
+      </span>
+    </div>
+    <div class="stat-icon-wrapper icon-budget">
+      🎯
+    </div>
+  </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-grid">
+  <!-- Expense Breakdown Donut -->
+  <div class="chart-card">
+    <div class="card-top">
+      <h3 class="card-title">Expense Breakdown</h3>
+      <select class="filter-select">
+        <option>This Month</option>
+        <option>Last Month</option>
+        <option>This Year</option>
+      </select>
+    </div>
+    <div class="donut-container">
+      <div class="donut-canvas-wrapper">
+        <canvas id="expenseBreakdownChart"></canvas>
+        <div class="donut-center-text">
+          <div class="amount">₹12.5K</div>
+          <div class="sub">Total Spent</div>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-row">
+          <div class="legend-label">
+            <span class="legend-dot" style="background: #06b6d4;"></span>
+            Food & Dining
+          </div>
+          <span class="legend-pct">35%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-label">
+            <span class="legend-dot" style="background: #a855f7;"></span>
+            Shopping
+          </div>
+          <span class="legend-pct">28%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-label">
+            <span class="legend-dot" style="background: #38bdf8;"></span>
+            Transport
+          </div>
+          <span class="legend-pct">18%</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-label">
+            <span class="legend-dot" style="background: #ec4899;"></span>
+            Others
+          </div>
+          <span class="legend-pct">19%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Income vs Expenses Line Chart -->
+  <div class="chart-card">
+    <div class="card-top">
+      <h3 class="card-title">Income vs Expenses</h3>
+      <select class="filter-select">
+        <option>This Month</option>
+        <option>Last 6 Months</option>
+      </select>
+    </div>
+    <div style="position: relative; height: 220px; width: 100%;">
+      <canvas id="incomeExpensesChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Section: Recent Transactions & AI Insight -->
+<div class="bottom-grid">
+  <!-- Recent Transactions Card -->
+  <div class="txns-card">
+    <div class="card-top">
+      <h3 class="card-title">Recent Transactions</h3>
+      <a href="{{ url_for('transactions') }}" class="view-all-link">View All &rarr;</a>
+    </div>
+
+    <div class="txn-list">
+      {% if recent_txns %}
+        {% for txn in recent_txns %}
+          <div class="txn-item">
+            <div class="txn-item-left">
+              <div class="txn-icon" style="background: {% if txn.type == 'income' %}rgba(34,197,94,0.18){% elif txn.category == 'Shopping' %}rgba(168,85,247,0.18){% elif txn.category == 'Food & Dining' %}rgba(249,115,22,0.18){% else %}rgba(6,182,212,0.18){% endif %};">
+                {% if txn.type == 'income' %}💵{% elif txn.category == 'Shopping' %}🛍️{% elif txn.category == 'Food & Dining' %}🍕{% elif txn.category == 'Transport' %}🚗{% else %}📦{% endif %}
+              </div>
+              <div class="txn-meta">
+                <div class="title">{{ txn.merchant or txn.description }}</div>
+                <div class="category">{{ txn.category }}</div>
+              </div>
+            </div>
+            <div class="txn-item-right">
+              <div class="txn-amount {% if txn.type == 'income' %}amount-income{% else %}amount-expense{% endif %}">
+                {% if txn.type == 'income' %}+{% else %}-{% endif %}₹{{ '{:,.0f}'.format(txn.amount) }}
+              </div>
+              <div class="txn-date">{{ txn.date.strftime('%b %d') if txn.date else 'Recent' }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <!-- Default sample items matching Finora UI -->
+        <div class="txn-item">
+          <div class="txn-item-left">
+            <div class="txn-icon" style="background: rgba(249,115,22,0.2);">🍕</div>
+            <div class="txn-meta">
+              <div class="title">Swiggy</div>
+              <div class="category">Food & Dining</div>
+            </div>
+          </div>
+          <div class="txn-item-right">
+            <div class="txn-amount amount-expense">-₹500</div>
+            <div class="txn-date">Feb 3</div>
+          </div>
+        </div>
+
+        <div class="txn-item">
+          <div class="txn-item-left">
+            <div class="txn-icon" style="background: rgba(168,85,247,0.2);">🛍️</div>
+            <div class="txn-meta">
+              <div class="title">Amazon</div>
+              <div class="category">Shopping</div>
+            </div>
+          </div>
+          <div class="txn-item-right">
+            <div class="txn-amount amount-expense">-₹1,200</div>
+            <div class="txn-date">Feb 2</div>
+          </div>
+        </div>
+
+        <div class="txn-item">
+          <div class="txn-item-left">
+            <div class="txn-icon" style="background: rgba(34,197,94,0.2);">💰</div>
+            <div class="txn-meta">
+              <div class="title">Salary Credit</div>
+              <div class="category">Salary</div>
+            </div>
+          </div>
+          <div class="txn-item-right">
+            <div class="txn-amount amount-income">+₹25,000</div>
+            <div class="txn-date">Feb 1</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- AI Spending Insight Card -->
+  <div class="insight-card">
+    <div>
+      <div class="insight-header">
+        <span class="insight-sparkle">✨</span>
+        <h3 class="insight-title">AI Spending Insight</h3>
+      </div>
+      <p class="insight-text">
+        Your food expenses are 20% higher than last month. Try cooking at home to save up to ₹2,500!
+      </p>
+    </div>
+
+    <div class="insight-bottom">
+      <a href="{{ url_for('ai_assistant') }}" class="btn-insight">
+        View Tips <span>&rarr;</span>
+      </a>
+      <img src="{{ url_for('static', filename='images/robot-bulb.svg') }}" alt="AI Robot" class="insight-robot-thumb" />
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 1. Expense Breakdown Donut Chart
+  const donutCtx = document.getElementById('expenseBreakdownChart');
+  if (donutCtx) {
+    new Chart(donutCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Food & Dining', 'Shopping', 'Transport', 'Others'],
+        datasets: [{
+          data: [35, 28, 18, 19],
+          backgroundColor: ['#06b6d4', '#a855f7', '#38bdf8', '#ec4899'],
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '76%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1040',
+            borderColor: '#7c3aed',
+            borderWidth: 1,
+            callbacks: {
+              label: function(ctx) { return ' ' + ctx.label + ': ' + ctx.parsed + '%'; }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 2. Income vs Expenses Line Chart
+  const lineCtx = document.getElementById('incomeExpensesChart');
+  if (lineCtx) {
+    new Chart(lineCtx, {
+      type: 'line',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [
+          {
+            label: 'Income',
+            data: [20000, 22000, 21000, 25000, 24000, 26000, 25000],
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#06b6d4',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          },
+          {
+            label: 'Expenses',
+            data: [10000, 15000, 12000, 18000, 14000, 16000, 12500],
+            borderColor: '#ec4899',
+            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+            tension: 0.4,
+            fill: true,
+            pointBackgroundColor: '#ec4899',
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#a78bfa',
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 8,
+              padding: 15
+            }
+          },
+          tooltip: {
+            backgroundColor: '#1e1040',
+            borderColor: '#7c3aed',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(124, 58, 237, 0.1)' },
+            ticks: { color: '#6b7280' }
+          },
+          y: {
+            grid: { color: 'rgba(124, 58, 237, 0.1)' },
+            ticks: {
+              color: '#6b7280',
+              callback: function(v) { return (v / 1000) + 'k'; }
+            }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

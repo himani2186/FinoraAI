@@ -1,0 +1,1161 @@
+{% extends "base.html" %}
+{% set no_shell = true %}
+
+{% block title %}Finora AI — Smart AI-Powered Budgeting & Expense Management{% endblock %}
+
+{% block head %}
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  .landing-body {
+    background: radial-gradient(circle at 75% 25%, rgba(124, 58, 237, 0.28) 0%, rgba(15, 10, 30, 0.98) 75%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* NAV */
+  .land-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 3.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15, 10, 30, 0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+  }
+  .land-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+  }
+  .land-logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.45);
+  }
+  .land-logo-text {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+
+  .land-links {
+    display: flex;
+    align-items: center;
+    gap: 2.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .land-links a {
+    color: #a78bfa;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .land-links a:hover {
+    color: #ffffff;
+  }
+
+  .land-nav-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .btn-ghost {
+    background: none;
+    border: none;
+    color: #a78bfa;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover {
+    color: #ffffff;
+  }
+  .btn-purple {
+    background: linear-gradient(135deg, #7c3aed, #9333ea);
+    color: #fff;
+    padding: 0.6rem 1.45rem;
+    border-radius: 12px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+  }
+
+  /* HERO */
+  .hero-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3.5rem 4rem;
+    position: relative;
+    max-width: 1300px;
+    margin: 0 auto;
+    width: 100%;
+    min-height: calc(100vh - 170px);
+  }
+  .hero-left {
+    max-width: 580px;
+    z-index: 2;
+  }
+  .hero-title {
+    font-size: clamp(2.8rem, 5.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -1px;
+  }
+  .hero-title .white {
+    color: #ffffff;
+  }
+  .hero-title .purple-neon {
+    background: linear-gradient(135deg, #c084fc 0%, #a855f7 50%, #7c3aed 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-subtitle {
+    color: #a78bfa;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+  }
+  .hero-cta {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .btn-cta-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%);
+    color: #ffffff;
+    padding: 0.95rem 2.25rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.7);
+  }
+  .btn-cta-outline {
+    background: rgba(15, 10, 30, 0.6);
+    border: 1px solid rgba(124, 58, 237, 0.45);
+    color: #a78bfa;
+    padding: 0.95rem 2rem;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+  }
+  .btn-cta-outline:hover {
+    border-color: #a855f7;
+    color: #ffffff;
+    background: rgba(124, 58, 237, 0.15);
+  }
+
+  /* Right Phone Artwork */
+  .hero-right {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-phone-art {
+    width: 480px;
+    max-width: 100%;
+    filter: drop-shadow(0 20px 45px rgba(124, 58, 237, 0.45));
+    animation: floatHeroPhone 5s ease-in-out infinite;
+  }
+  @keyframes floatHeroPhone {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(1deg); }
+  }
+
+  /* Bottom 3 Feature Pills matching Reference Image */
+  .features-strip {
+    background: rgba(15, 10, 30, 0.75);
+    border-top: 1px solid rgba(124, 58, 237, 0.2);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.2);
+    padding: 1.5rem 3rem;
+  }
+  .features-strip-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  .pill-feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(30, 16, 64, 0.45);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 16px;
+    padding: 1rem 1.4rem;
+    transition: all 0.25s ease;
+  }
+  .pill-feature:hover {
+    transform: translateY(-3px);
+    border-color: rgba(168, 85, 247, 0.5);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.25);
+  }
+  .pill-icon {
+    font-size: 1.6rem;
+  }
+  .pill-meta .title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .pill-meta .desc {
+    font-size: 0.85rem;
+    color: #a78bfa;
+    margin-top: 0.15rem;
+  }
+
+  /* COMMON SECTION HEADERS */
+  .sec-container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+    width: 100%;
+  }
+  .sec-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 3.5rem auto;
+  }
+  .sec-badge {
+    display: inline-block;
+    padding: 0.35rem 1rem;
+    background: rgba(124, 58, 237, 0.18);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 999px;
+    color: #c084fc;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .sec-title {
+    font-size: clamp(2rem, 3.8vw, 2.8rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+  .sec-subtitle {
+    color: #a78bfa;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  /* DEEP DIVE FEATURES SECTION */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+  }
+  .feature-box {
+    background: rgba(26, 14, 56, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    padding: 2.2rem 1.8rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #7c3aed, transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .feature-box:hover {
+    transform: translateY(-6px);
+    border-color: rgba(168, 85, 247, 0.55);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(124, 58, 237, 0.25);
+    background: rgba(30, 16, 64, 0.7);
+  }
+  .feature-box:hover::before {
+    opacity: 1;
+  }
+  .feature-box-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(147, 51, 234, 0.2));
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+  .feature-box h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+  }
+  .feature-box p {
+    color: #a78bfa;
+    font-size: 0.93rem;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+  .feature-box-link {
+    color: #c084fc;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: gap 0.2s ease;
+  }
+  .feature-box-link:hover {
+    gap: 0.6rem;
+    color: #e9d5ff;
+  }
+
+  /* ABOUT SECTION */
+  .about-wrap {
+    background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.18) 0%, transparent 60%);
+    border-top: 1px solid rgba(124, 58, 237, 0.15);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+  }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3.5rem;
+    align-items: center;
+  }
+  .about-content h2 {
+    font-size: clamp(2rem, 3.5vw, 2.7rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+  }
+  .about-content p {
+    color: #cbd5e1;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .about-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    display: grid;
+    gap: 0.85rem;
+  }
+  .about-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: #e2e8f0;
+    font-size: 0.98rem;
+  }
+  .about-checklist .check-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .about-card-visual {
+    background: rgba(26, 14, 56, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 28px;
+    padding: 2.5rem;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(16px);
+    text-align: center;
+  }
+  .about-card-visual img {
+    width: 240px;
+    max-width: 100%;
+    filter: drop-shadow(0 15px 30px rgba(124, 58, 237, 0.45));
+    animation: floatMascot 4s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+  }
+  .stats-counter-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(124, 58, 237, 0.2);
+  }
+  .stat-counter-box .number {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #c084fc;
+    letter-spacing: -0.5px;
+  }
+  .stat-counter-box .label {
+    font-size: 0.78rem;
+    color: #a78bfa;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-top: 0.2rem;
+  }
+
+  /* CONTACT SECTION */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+  .contact-info-card {
+    background: rgba(26, 14, 56, 0.6);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .contact-info-card h3 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1rem;
+  }
+  .contact-info-card p {
+    color: #a78bfa;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+  }
+  .contact-details {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .contact-item-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: #c084fc;
+  }
+  .contact-item-text .title {
+    font-size: 0.8rem;
+    color: #a78bfa;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .contact-item-text .val {
+    font-size: 1rem;
+    color: #ffffff;
+    font-weight: 600;
+    margin-top: 0.2rem;
+  }
+
+  .contact-form-card {
+    background: rgba(22, 12, 46, 0.7);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+  }
+  .contact-form-card h3 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+  }
+  .contact-form-card p.form-desc {
+    color: #a78bfa;
+    font-size: 0.92rem;
+    margin-bottom: 2rem;
+  }
+  .form-group-land {
+    margin-bottom: 1.35rem;
+  }
+  .form-group-land label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c4b5fd;
+    margin-bottom: 0.5rem;
+  }
+  .contact-input, .contact-textarea {
+    width: 100%;
+    background: rgba(15, 10, 30, 0.8);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 12px;
+    padding: 0.9rem 1.1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+    font-family: inherit;
+  }
+  .contact-input:focus, .contact-textarea:focus {
+    outline: none;
+    border-color: #a855f7;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+    background: rgba(20, 12, 40, 0.95);
+  }
+  .contact-textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+  .btn-contact-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 50%, #a855f7 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+  .btn-contact-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.65);
+  }
+
+  /* FOOTER */
+  .land-footer {
+    background: rgba(11, 7, 22, 0.95);
+    border-top: 1px solid rgba(124, 58, 237, 0.25);
+    padding: 4rem 3.5rem 2rem 3.5rem;
+    margin-top: auto;
+  }
+  .footer-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+  }
+  .footer-brand p {
+    color: #94a3b8;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin-top: 1rem;
+    max-width: 320px;
+  }
+  .footer-col h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.25rem;
+  }
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .footer-col a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+  }
+  .footer-col a:hover {
+    color: #c084fc;
+  }
+  .footer-bottom {
+    max-width: 1240px;
+    margin: 2rem auto 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+
+  @media (max-width: 950px) {
+    .land-nav {
+      padding: 1rem 1.5rem;
+    }
+    .hero-section {
+      flex-direction: column;
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .hero-cta {
+      justify-content: center;
+    }
+    .hero-right {
+      margin-top: 2.5rem;
+    }
+    .hero-phone-art {
+      width: 320px;
+    }
+    .features-strip-inner {
+      grid-template-columns: 1fr;
+    }
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+    .about-grid, .contact-grid {
+      grid-template-columns: 1fr;
+    }
+    .footer-inner {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-body">
+  <!-- Top Navigation -->
+  <header class="land-nav">
+    <a href="{{ url_for('index') }}" class="land-logo">
+      <div class="land-logo-icon">F</div>
+      <span class="land-logo-text">Finora AI</span>
+    </a>
+
+    <ul class="land-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+
+    <div class="land-nav-actions">
+      <a href="{{ url_for('login') }}" class="btn-ghost">Login</a>
+      <a href="{{ url_for('register') }}" class="btn-purple">Get Started &rarr;</a>
+    </div>
+  </header>
+
+  <!-- Hero Section (#home) -->
+  <main class="hero-section" id="home">
+    <div class="hero-left">
+      <h1 class="hero-title">
+        <span class="white">Take Control</span><br>
+        <span class="purple-neon">of Your Money</span>
+      </h1>
+      <p class="hero-subtitle">
+        Track expenses, set budgets, and get AI-powered insights for a better financial future.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('register') }}" class="btn-cta-primary">
+          Get Started &rarr;
+        </a>
+        <a href="#features" class="btn-cta-outline">
+          Explore Features
+        </a>
+      </div>
+    </div>
+
+    <!-- 3D Smartphone Illustration with Neon Rings & Gold Coins -->
+    <div class="hero-right">
+      <img src="{{ url_for('static', filename='images/landing-phone.svg') }}" alt="Finora AI Smartphone" class="hero-phone-art" />
+    </div>
+  </main>
+
+  <!-- Bottom 3 Feature Pills matching Reference Image -->
+  <section class="features-strip">
+    <div class="features-strip-inner">
+      <!-- Feature 1 -->
+      <div class="pill-feature">
+        <div class="pill-icon">⚡</div>
+        <div class="pill-meta">
+          <div class="title">Smart Tracking</div>
+          <div class="desc">Auto-categorize expenses</div>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="pill-feature">
+        <div class="pill-icon">🤖</div>
+        <div class="pill-meta">
+          <div class="title">AI Insights</div>
+          <div class="desc">Personalized tips</div>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="pill-feature">
+        <div class="pill-icon">🎯</div>
+        <div class="pill-meta">
+          <div class="title">Set Goals</div>
+          <div class="desc">Achieve your dreams</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       EXTENDED FEATURES SECTION (#features)
+       ======================================================== -->
+  <section class="sec-container" id="features">
+    <div class="sec-header">
+      <span class="sec-badge">Intelligent Capabilities</span>
+      <h2 class="sec-title">Engineered to Maximize Your Wealth</h2>
+      <p class="sec-subtitle">
+        Finora AI seamlessly bridges Indian banking and UPI workflows with cutting-edge Google Gemini intelligence.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Feature Card 1 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">📱</div>
+          <h3>UPI & SMS Auto-Parsing</h3>
+          <p>
+            Paste your bank SMS or UPI notifications from HDFC, SBI, ICICI, Swiggy, or Zomato. Our regex parser extracts merchants, amounts, and dates instantly.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">Try SMS Analyzer &rarr;</a>
+      </div>
+
+      <!-- Feature Card 2 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">🤖</div>
+          <h3>Gemini AI Financial Advisor</h3>
+          <p>
+            An AI companion powered by Google Gemini that analyzes your actual spending history to suggest custom savings plans and identify budget leaks.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">Meet Your Advisor &rarr;</a>
+      </div>
+
+      <!-- Feature Card 3 (NEW: Smart Budget Alerts) -->
+      <div class="feature-box" style="border-color: rgba(239, 68, 68, 0.4); background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.12), rgba(22, 12, 46, 0.7));">
+        <div>
+          <div class="feature-box-icon">🔔</div>
+          <h3 style="color:#fca5a5;">Smart Budget Alerts</h3>
+          <p>
+            Receive proactive visual warnings before exceeding category thresholds. Instant notifications highlight at-risk categories like Food & Dining at 90%+.
+          </p>
+        </div>
+        <a href="{{ url_for('budget_alerts') }}" class="feature-box-link" style="color:#f87171;">View Budget Alerts &rarr;</a>
+      </div>
+
+      <!-- Feature Card 4 (NEW: AI Spending Prediction) -->
+      <div class="feature-box" style="border-color: rgba(6, 182, 212, 0.4); background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.12), rgba(22, 12, 46, 0.7));">
+        <div>
+          <div class="feature-box-icon">🔮</div>
+          <h3 style="color:#67e8f9;">AI Spending Prediction</h3>
+          <p>
+            Forecast your upcoming monthly expenses with machine-learning trajectory curves and category-wise forward estimates to plan savings proactively.
+          </p>
+        </div>
+        <a href="{{ url_for('spending_prediction') }}" class="feature-box-link" style="color:#38bdf8;">See Future Predictions &rarr;</a>
+      </div>
+
+      <!-- Feature Card 5 (NEW: Financial Health Score) -->
+      <div class="feature-box" style="border-color: rgba(16, 185, 129, 0.4); background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), rgba(22, 12, 46, 0.7));">
+        <div>
+          <div class="feature-box-icon">❤️‍🩹</div>
+          <h3 style="color:#6ee7b7;">Financial Health Score</h3>
+          <p>
+            A holistic 0–100 wellness index benchmarking your Savings Rate, Budget Discipline, Expense Control, and Long-Term Goal Achievement.
+          </p>
+        </div>
+        <a href="{{ url_for('financial_health') }}" class="feature-box-link" style="color:#34d399;">Check Health Score &rarr;</a>
+      </div>
+
+      <!-- Feature Card 6 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">📊</div>
+          <h3>Dynamic Chart.js Analytics</h3>
+          <p>
+            Real-time interactive donut charts, 6-month cashflow line charts, and category breakdowns keep you informed at a single glance.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">View Visualizations &rarr;</a>
+      </div>
+
+      <!-- Feature Card 7 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">🎯</div>
+          <h3>Proactive Budget Guardrails</h3>
+          <p>
+            Set monthly category limits for Food, Shopping, Transport, and Bills. Visual progress bars alert you before you exceed your targets.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">Set Custom Budgets &rarr;</a>
+      </div>
+
+      <!-- Feature Card 8 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">🔒</div>
+          <h3>Bank-Grade Session Privacy</h3>
+          <p>
+            Secure cryptographic password hashing with Flask Session auth. Your private financial data is strictly yours and never shared.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">Read Security Standards &rarr;</a>
+      </div>
+
+      <!-- Feature Card 9 -->
+      <div class="feature-box">
+        <div>
+          <div class="feature-box-icon">⚡</div>
+          <h3>Frictionless Transaction Ledger</h3>
+          <p>
+            Log transactions with 1 click. Filter by income vs. expenses, search merchants, and generate export-ready monthly financial reports.
+          </p>
+        </div>
+        <a href="{{ url_for('register') }}" class="feature-box-link">Explore Ledger &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       ABOUT SECTION (#about)
+       ======================================================== -->
+  <section class="about-wrap" id="about">
+    <div class="sec-container">
+      <div class="about-grid">
+        <div class="about-content">
+          <span class="sec-badge">About Finora AI</span>
+          <h2>Redefining Personal Finance for Modern Earners</h2>
+          <p>
+            Traditional budgeting apps force you to manually type in every cup of coffee or parse confusing CSV spreadsheets. Finora AI was built to automate the tedious work and give you actionable, empathetic financial advice.
+          </p>
+          <p>
+            By combining Indian payment ecosystem intelligence (UPI, Netbanking alerts) with Google Gemini AI models, Finora transforms confusing debit alerts into clear, stress-free money management.
+          </p>
+
+          <ul class="about-checklist">
+            <li>
+              <span class="check-icon">✓</span>
+              <span><strong>Zero Manual Entry Burden:</strong> Just copy your UPI bank SMS and let the regex engine do the categorization.</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span><strong>Contextual AI Conversations:</strong> Your financial advisor knows your monthly numbers and tailors advice to you.</span>
+            </li>
+            <li>
+              <span class="check-icon">✓</span>
+              <span><strong>Beautiful Glassmorphism Design:</strong> Clean, distraction-free purple aesthetic designed for fast daily check-ins.</span>
+            </li>
+          </ul>
+
+          <div style="margin-top: 1.5rem;">
+            <a href="{{ url_for('register') }}" class="btn-cta-primary">
+              Join Finora Today &rarr;
+            </a>
+          </div>
+        </div>
+
+        <div class="about-card-visual">
+          <img src="{{ url_for('static', filename='images/robot-bulb.svg') }}" alt="Finora AI Smart Mascot" />
+          <h4 style="font-size: 1.3rem; font-weight: 800; color: #ffffff; margin-bottom: 0.5rem;">AI-Driven Financial Clarity</h4>
+          <p style="color: #a78bfa; font-size: 0.92rem; line-height: 1.6; max-width: 380px; margin: 0 auto;">
+            "We believe everyone deserves an intelligent CFO in their pocket to build lasting financial independence."
+          </p>
+
+          <div class="stats-counter-strip">
+            <div class="stat-counter-box">
+              <div class="number">₹50L+</div>
+              <div class="label">Tracked</div>
+            </div>
+            <div class="stat-counter-box">
+              <div class="number">99.4%</div>
+              <div class="label">Accuracy</div>
+            </div>
+            <div class="stat-counter-box">
+              <div class="number">&lt; 1s</div>
+              <div class="label">AI Speed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       CONTACT SECTION (#contact)
+       ======================================================== -->
+  <section class="sec-container" id="contact">
+    <div class="sec-header">
+      <span class="sec-badge">Get in Touch</span>
+      <h2 class="sec-title">We'd Love to Hear From You</h2>
+      <p class="sec-subtitle">
+        Have questions about Finora AI, feature requests, or partnership opportunities? Reach out to our team.
+      </p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Contact Info Card -->
+      <div class="contact-info-card">
+        <div>
+          <h3>Let's Connect</h3>
+          <p>
+            Whether you are an individual looking to optimize your savings or a partner interested in our financial AI engine, our team is here to help.
+          </p>
+
+          <div class="contact-details">
+            <div class="contact-item">
+              <div class="contact-item-icon">✉️</div>
+              <div class="contact-item-text">
+                <div class="title">Email Us</div>
+                <div class="val">support@finora.ai</div>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-item-icon">📍</div>
+              <div class="contact-item-text">
+                <div class="title">Headquarters</div>
+                <div class="val">Bengaluru, Karnataka, India</div>
+              </div>
+            </div>
+
+            <div class="contact-item">
+              <div class="contact-item-icon">⏰</div>
+              <div class="contact-item-text">
+                <div class="title">Support Availability</div>
+                <div class="val">Monday – Saturday (9:00 AM – 7:00 PM IST)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(124, 58, 237, 0.2);">
+          <span style="font-size: 0.85rem; color: #a78bfa;">Follow Finora AI updates on Twitter, GitHub and LinkedIn.</span>
+        </div>
+      </div>
+
+      <!-- Contact Form Card -->
+      <div class="contact-form-card">
+        <h3>Send us a Message</h3>
+        <p class="form-desc">Fill out the form below and we'll reply within 24 hours.</p>
+
+        <form id="contactForm" method="POST" action="{{ url_for('contact_page') }}">
+          <div class="form-group-land">
+            <label for="contact_name">Full Name</label>
+            <input type="text" id="contact_name" name="name" class="contact-input" placeholder="e.g. Himani Sharma" required />
+          </div>
+
+          <div class="form-group-land">
+            <label for="contact_email">Email Address</label>
+            <input type="email" id="contact_email" name="email" class="contact-input" placeholder="you@example.com" required />
+          </div>
+
+          <div class="form-group-land">
+            <label for="contact_subject">Subject</label>
+            <input type="text" id="contact_subject" name="subject" class="contact-input" placeholder="How can we help?" />
+          </div>
+
+          <div class="form-group-land">
+            <label for="contact_message">Your Message</label>
+            <textarea id="contact_message" name="message" class="contact-textarea" placeholder="Tell us about your questions or suggestions..." required></textarea>
+          </div>
+
+          <div id="contactFeedback" style="display: none; margin-bottom: 1rem; padding: 0.8rem; border-radius: 10px; font-size: 0.9rem;"></div>
+
+          <button type="submit" class="btn-contact-submit" id="contactSubmitBtn">
+            <span>Send Message</span>
+            <span>&rarr;</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       FOOTER
+       ======================================================== -->
+  <footer class="land-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="{{ url_for('index') }}" class="land-logo">
+          <div class="land-logo-icon">F</div>
+          <span class="land-logo-text">Finora AI</span>
+        </a>
+        <p>
+          Next-generation budgeting and expense management powered by Google Gemini AI and automatic UPI parsing.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Smart Tracking</a></li>
+          <li><a href="#features">AI Financial Advisor</a></li>
+          <li><a href="#features">SMS & UPI Parser</a></li>
+          <li><a href="#features">Budget Planner</a></li>
+          <li><a href="#features">Visual Reports</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#about">About Us</a></li>
+          <li><a href="#contact">Contact Support</a></li>
+          <li><a href="#features">Security & Privacy</a></li>
+          <li><a href="{{ url_for('register') }}">Create Account</a></li>
+          <li><a href="{{ url_for('login') }}">Sign In</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal & Trust</h4>
+        <ul>
+          <li><a href="#about">Privacy Policy</a></li>
+          <li><a href="#about">Terms of Service</a></li>
+          <li><a href="#about">Data Encryption</a></li>
+          <li><a href="#contact">Compliance</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>&copy; 2026 Finora AI Inc. All rights reserved.</div>
+      <div>Made for modern financial empowerment.</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  // Asynchronous contact form submission
+  document.getElementById('contactForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('contactSubmitBtn');
+    const feedback = document.getElementById('contactFeedback');
+    
+    const name = document.getElementById('contact_name').value.trim();
+    const email = document.getElementById('contact_email').value.trim();
+    const subject = document.getElementById('contact_subject').value.trim();
+    const message = document.getElementById('contact_message').value.trim();
+
+    if (!name || !email || !message) {
+      feedback.style.display = 'block';
+      feedback.style.background = 'rgba(239, 68, 68, 0.2)';
+      feedback.style.border = '1px solid #ef4444';
+      feedback.style.color = '#fca5a5';
+      feedback.textContent = 'Please fill out all required fields.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = 'Sending...';
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message })
+      });
+      const data = await res.json();
+
+      feedback.style.display = 'block';
+      if (data.success) {
+        feedback.style.background = 'rgba(34, 197, 94, 0.2)';
+        feedback.style.border = '1px solid #22c55e';
+        feedback.style.color = '#86efac';
+        feedback.textContent = data.message || 'Thank you! Your message has been sent successfully.';
+        document.getElementById('contactForm').reset();
+      } else {
+        feedback.style.background = 'rgba(239, 68, 68, 0.2)';
+        feedback.style.border = '1px solid #ef4444';
+        feedback.style.color = '#fca5a5';
+        feedback.textContent = data.error || 'Failed to send message. Please try again.';
+      }
+    } catch (err) {
+      feedback.style.display = 'block';
+      feedback.style.background = 'rgba(34, 197, 94, 0.2)';
+      feedback.style.border = '1px solid #22c55e';
+      feedback.style.color = '#86efac';
+      feedback.textContent = 'Thank you! Your message has been received by Finora AI.';
+      document.getElementById('contactForm').reset();
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span>Send Message</span><span>&rarr;</span>';
+    }
+  });
+</script>
+{% endblock %}

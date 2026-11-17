@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Smart Budget Alerts{% endblock %}
+
+{% block head %}
+<style>
+  .page-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-left-badge {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .header-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(147, 51, 234, 0.2));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.35);
+  }
+  .header-text h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+  .header-text p {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin: 0.25rem 0 0 0;
+  }
+
+  .month-dropdown-btn {
+    background: rgba(30, 16, 64, 0.7);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    color: #ffffff;
+    padding: 0.65rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .month-dropdown-btn:hover {
+    border-color: #a855f7;
+    background: rgba(45, 22, 95, 0.75);
+  }
+
+  /* TOP SECTION GRID: Mascot (Left) + Overview/Category (Center) + Red Alert Card (Right) */
+  .alerts-top-grid {
+    display: grid;
+    grid-template-columns: 240px 1.4fr 340px;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+    align-items: stretch;
+  }
+
+  /* Left Mascot Col */
+  .mascot-alert-card {
+    background: rgba(30, 16, 64, 0.5);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .mascot-alert-card img {
+    width: 200px;
+    max-height: 230px;
+    filter: drop-shadow(0 15px 30px rgba(124, 58, 237, 0.5));
+    animation: floatMascot 4s ease-in-out infinite;
+  }
+  @keyframes floatMascot {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+  .mascot-speech-bubble {
+    background: rgba(22, 12, 46, 0.9);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 14px;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.82rem;
+    color: #e2e8f0;
+    font-weight: 600;
+    line-height: 1.4;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-top: 0.5rem;
+  }
+
+  /* Center Column: Budget Overview & Category Budgets */
+  .center-cards-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .card-glass {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 22px;
+    padding: 1.4rem 1.6rem;
+    backdrop-filter: blur(14px);
+  }
+  .card-head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+  .card-head-row h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+  }
+  .card-link {
+    color: #c084fc;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .card-link:hover {
+    color: #ffffff;
+  }
+
+  /* Overview Donut + Stats */
+  .overview-content {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+  }
+  .donut-container {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .donut-circle-svg {
+    transform: rotate(-90deg);
+  }
+  .donut-center-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .donut-center-label .num {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+  }
+  .donut-center-label .txt {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin-top: 0.2rem;
+    text-transform: uppercase;
+  }
+  .overview-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 1;
+  }
+  .ov-stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .ov-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.85rem;
+    color: #a78bfa;
+  }
+  .ov-stat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .ov-stat-val {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  /* Category Progress Bars */
+  .cat-bar-item {
+    margin-bottom: 0.95rem;
+  }
+  .cat-bar-item:last-child {
+    margin-bottom: 0;
+  }
+  .cat-bar-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+    font-size: 0.85rem;
+  }
+  .cat-bar-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #e2e8f0;
+    font-weight: 600;
+  }
+  .cat-bar-numbers {
+    color: #94a3b8;
+    font-size: 0.82rem;
+  }
+  .cat-bar-pct {
+    color: #ffffff;
+    font-weight: 800;
+    margin-left: 0.75rem;
+  }
+  .progress-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(15, 10, 30, 0.7);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #7c3aed 0%, #a855f7 70%, #c084fc 100%);
+    transition: width 0.6s ease;
+  }
+
+  /* Right Glowing Red Alert Card */
+  .critical-alert-card {
+    background: radial-gradient(circle at 50% 20%, rgba(239, 68, 68, 0.28) 0%, rgba(20, 10, 32, 0.92) 80%);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 24px;
+    padding: 2.2rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 0 35px rgba(239, 68, 68, 0.25);
+    position: relative;
+    overflow: hidden;
+  }
+  .critical-alert-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ef4444, transparent);
+  }
+  .red-warning-triangle {
+    width: 72px;
+    height: 72px;
+    margin-bottom: 1.25rem;
+    filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.7));
+    animation: pulseWarn 2s infinite ease-in-out;
+  }
+  @keyframes pulseWarn {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.7)); }
+    50% { transform: scale(1.08); filter: drop-shadow(0 0 24px rgba(239, 68, 68, 0.95)); }
+  }
+  .critical-alert-card h2 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 0.5rem 0;
+  }
+  .critical-alert-card p {
+    color: #fca5a5;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin-bottom: 1.75rem;
+    max-width: 240px;
+  }
+  .btn-view-alert {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.8rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+    transition: transform 0.2s ease;
+  }
+  .btn-view-alert:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.7);
+  }
+
+  /* BOTTOM: Recent Alerts Table/List */
+  .recent-alerts-card {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 22px;
+    padding: 1.5rem 1.8rem;
+  }
+  .recent-alert-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+  }
+  .recent-alert-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0.25rem;
+  }
+  .recent-alert-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .alert-circle-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .alert-circle-badge.red {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1.5px solid #ef4444;
+    color: #ef4444;
+  }
+  .alert-circle-badge.green {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1.5px solid #22c55e;
+    color: #4ade80;
+  }
+  .alert-row-meta .title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.15rem;
+  }
+  .alert-row-meta .desc {
+    font-size: 0.82rem;
+    color: #a78bfa;
+  }
+  .alert-row-time {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  @media (max-width: 1100px) {
+    .alerts-top-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-row">
+  <div class="header-left-badge">
+    <div class="header-icon-box">🔔</div>
+    <div class="header-text">
+      <h1>Smart Budget Alerts</h1>
+      <p>Get notified before you exceed your budget</p>
+    </div>
+  </div>
+
+  <div>
+    <button class="month-dropdown-btn">
+      <span>This Month</span>
+      <span>▼</span>
+    </button>
+  </div>
+</div>
+
+<!-- TOP 3-COLUMN LAYOUT -->
+<div class="alerts-top-grid">
+
+  <!-- LEFT COLUMN: Robot Mascot with Bell -->
+  <div class="mascot-alert-card">
+    <img src="{{ url_for('static', filename='images/robot-bell.svg') }}" alt="Finora AI Bell Mascot" />
+    <div class="mascot-speech-bubble">
+      Try to keep your food expenses in check!
+    </div>
+  </div>
+
+  <!-- CENTER COLUMN: Budget Overview & Category Budgets -->
+  <div class="center-cards-col">
+    <!-- Budget Overview Card -->
+    <div class="card-glass">
+      <div class="card-head-row">
+        <h3>Budget Overview</h3>
+        <a href="{{ url_for('budgets') }}" class="card-link">View Details &rarr;</a>
+      </div>
+
+      <div class="overview-content">
+        <!-- Circular Donut SVG -->
+        <div class="donut-container">
+          <svg class="donut-circle-svg" width="120" height="120" viewBox="0 0 120 120">
+            <!-- Background Ring -->
+            <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(15, 10, 30, 0.8)" stroke-width="12" />
+            <!-- Gradient Progress Arc (72% of 301.59 = 217.15) -->
+            <circle cx="60" cy="60" r="48" fill="none" stroke="url(#donutGrad)" stroke-width="12"
+                    stroke-dasharray="301.59" stroke-dashoffset="84.4" stroke-linecap="round" />
+            <defs>
+              <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06b6d4" />
+                <stop offset="100%" stop-color="#7c3aed" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="donut-center-label">
+            <span class="num">72%</span>
+            <span class="txt">Used</span>
+          </div>
+        </div>
+
+        <!-- Right Stats -->
+        <div class="overview-stats-list">
+          <div class="ov-stat-item">
+            <div class="ov-stat-label">
+              <span class="ov-stat-dot" style="background:#3b82f6;"></span>
+              <span>Total Budget</span>
+            </div>
+            <span class="ov-stat-val">₹15,000</span>
+          </div>
+
+          <div class="ov-stat-item">
+            <div class="ov-stat-label">
+              <span class="ov-stat-dot" style="background:#a855f7;"></span>
+              <span>Spent So Far</span>
+            </div>
+            <span class="ov-stat-val">₹10,800</span>
+          </div>
+
+          <div class="ov-stat-item">
+            <div class="ov-stat-label">
+              <span class="ov-stat-dot" style="background:#10b981;"></span>
+              <span>Remaining</span>
+            </div>
+            <span class="ov-stat-val" style="color:#4ade80;">₹4,200</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Budgets Card -->
+    <div class="card-glass">
+      <div class="card-head-row">
+        <h3>Category Budgets</h3>
+        <a href="{{ url_for('budgets') }}" class="card-link">View All &rarr;</a>
+      </div>
+
+      <!-- Food & Dining -->
+      <div class="cat-bar-item">
+        <div class="cat-bar-meta">
+          <span class="cat-bar-name">🍽️ Food & Dining</span>
+          <div>
+            <span class="cat-bar-numbers">₹3,000 / ₹4,000</span>
+            <span class="cat-bar-pct">75%</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 75%;"></div>
+        </div>
+      </div>
+
+      <!-- Shopping -->
+      <div class="cat-bar-item">
+        <div class="cat-bar-meta">
+          <span class="cat-bar-name">🛒 Shopping</span>
+          <div>
+            <span class="cat-bar-numbers">₹2,500 / ₹4,000</span>
+            <span class="cat-bar-pct">63%</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 63%;"></div>
+        </div>
+      </div>
+
+      <!-- Transport -->
+      <div class="cat-bar-item">
+        <div class="cat-bar-meta">
+          <span class="cat-bar-name">🚗 Transport</span>
+          <div>
+            <span class="cat-bar-numbers">₹1,200 / ₹2,000</span>
+            <span class="cat-bar-pct">60%</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 60%;"></div>
+        </div>
+      </div>
+
+      <!-- Bills & Utilities -->
+      <div class="cat-bar-item">
+        <div class="cat-bar-meta">
+          <span class="cat-bar-name">⚡ Bills & Utilities</span>
+          <div>
+            <span class="cat-bar-numbers">₹2,000 / ₹2,500</span>
+            <span class="cat-bar-pct">80%</span>
+          </div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 80%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Glowing Red Budget Alert Card -->
+  <div class="critical-alert-card">
+    <svg class="red-warning-triangle" viewBox="0 0 100 100" fill="none">
+      <path d="M 50 12 L 90 82 C 92 86 89 90 85 90 L 15 90 C 11 90 8 86 10 82 Z"
+            stroke="#ef4444" stroke-width="6" fill="rgba(239, 68, 68, 0.15)" stroke-linejoin="round"/>
+      <line x1="50" y1="36" x2="50" y2="60" stroke="#f87171" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="50" cy="74" r="4.5" fill="#f87171"/>
+      <path d="M 92 46 L 98 42 M 95 56 L 102 56" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+
+    <h2>Budget Alert!</h2>
+    <p>You've used 90% of your Food &amp; Dining budget!</p>
+
+    <a href="{{ url_for('budgets') }}" class="btn-view-alert">
+      <span>View Details</span>
+      <span>&rarr;</span>
+    </a>
+  </div>
+
+</div>
+
+<!-- BOTTOM: RECENT ALERTS LIST -->
+<div class="recent-alerts-card">
+  <div class="card-head-row">
+    <h3>Recent Alerts</h3>
+    <a href="{{ url_for('budgets') }}" class="card-link">View All &rarr;</a>
+  </div>
+
+  <!-- Alert 1 -->
+  <div class="recent-alert-row">
+    <div class="recent-alert-left">
+      <div class="alert-circle-badge red">!</div>
+      <div class="alert-row-meta">
+        <div class="title">Food &amp; Dining budget nearly exceeded</div>
+        <div class="desc">You've spent ₹3,600 out of ₹4,000 (90%).</div>
+      </div>
+    </div>
+    <div class="alert-row-time">Today, 6:45 PM</div>
+  </div>
+
+  <!-- Alert 2 -->
+  <div class="recent-alert-row">
+    <div class="recent-alert-left">
+      <div class="alert-circle-badge green">✓</div>
+      <div class="alert-row-meta">
+        <div class="title">Transport budget is on track</div>
+        <div class="desc">You've used 60% of your transport budget.</div>
+      </div>
+    </div>
+    <div class="alert-row-time">Today, 10:20 AM</div>
+  </div>
+</div>
+{% endblock %}

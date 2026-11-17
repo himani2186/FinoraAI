@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Financial Health Score{% endblock %}
+
+{% block head %}
+<style>
+  .page-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-left-badge {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .header-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(6, 182, 212, 0.25));
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+  }
+  .header-text h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+  .header-text p {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin: 0.25rem 0 0 0;
+  }
+
+  /* TOP 3-COLUMN LAYOUT: Circular Score (Left) + Score Breakdown (Center) + Cheering Mascot (Right) */
+  .health-top-grid {
+    display: grid;
+    grid-template-columns: 280px 1.4fr 300px;
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+    align-items: stretch;
+  }
+
+  /* Score Ring Card */
+  .health-gauge-card {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 2.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    backdrop-filter: blur(14px);
+  }
+  .gauge-svg-box {
+    width: 170px;
+    height: 170px;
+    position: relative;
+    margin-bottom: 1.25rem;
+  }
+  .gauge-svg-box svg {
+    transform: rotate(-90deg);
+  }
+  .gauge-center-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    padding-top: 60px;
+  }
+  .gauge-center-text .main-score {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .gauge-center-text .max-score {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-left: 2px;
+  }
+  .score-badge-pill {
+    background: rgba(22, 12, 46, 0.85);
+    border: 1px solid rgba(52, 211, 153, 0.4);
+    color: #4ade80;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.45rem 1.4rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  }
+
+  /* Score Breakdown Card */
+  .health-breakdown-card {
+    background: rgba(30, 16, 64, 0.55);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 2rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(14px);
+  }
+  .health-breakdown-card h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 1.5rem 0;
+  }
+  .score-metric-row {
+    margin-bottom: 1.25rem;
+  }
+  .score-metric-row:last-child {
+    margin-bottom: 0;
+  }
+  .score-metric-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .score-metric-title {
+    color: #cbd5e1;
+    font-weight: 600;
+  }
+  .score-metric-val {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.92rem;
+  }
+  .score-bar-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(15, 10, 30, 0.8);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.8s ease;
+  }
+  .score-bar-fill.cyan {
+    background: linear-gradient(90deg, #06b6d4 0%, #38bdf8 100%);
+  }
+  .score-bar-fill.warm {
+    background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+  }
+
+  /* Cheering Robot Mascot Card */
+  .health-mascot-card {
+    background: radial-gradient(circle at 50% 60%, rgba(6, 182, 212, 0.25) 0%, rgba(20, 10, 35, 0.9) 75%);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    border-radius: 24px;
+    padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cheer-speech-bubble {
+    background: rgba(22, 12, 46, 0.9);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 14px;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.85rem;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  .health-mascot-card img {
+    width: 210px;
+    max-height: 230px;
+    filter: drop-shadow(0 15px 30px rgba(6, 182, 212, 0.45));
+    animation: floatCheer 4s ease-in-out infinite;
+  }
+  @keyframes floatCheer {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+  }
+
+  /* BOTTOM: Trophy Banner Card */
+  .trophy-banner-card {
+    background: linear-gradient(135deg, rgba(30, 16, 64, 0.8) 0%, rgba(45, 20, 85, 0.6) 100%);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 22px;
+    padding: 1.25rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+  .trophy-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  .trophy-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fbbf24;
+    flex-shrink: 0;
+  }
+  .trophy-text {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.2px;
+  }
+  .btn-trophy-details {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.6rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.45);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .btn-trophy-details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.65);
+  }
+
+  @media (max-width: 1050px) {
+    .health-top-grid {
+      grid-template-columns: 1fr;
+    }
+    .trophy-banner-card {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+    .trophy-banner-left {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header-row">
+  <div class="header-left-badge">
+    <div class="header-icon-box">📊</div>
+    <div class="header-text">
+      <h1>Financial Health Score</h1>
+      <p>Your overall financial wellness at a glance</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOP 3-COLUMN LAYOUT -->
+<div class="health-top-grid">
+
+  <!-- LEFT: Circular Gauge Ring -->
+  <div class="health-gauge-card">
+    <div class="gauge-svg-box">
+      <svg width="170" height="170" viewBox="0 0 170 170">
+        <!-- Background Dark Track -->
+        <circle cx="85" cy="85" r="70" fill="none" stroke="rgba(15, 10, 30, 0.85)" stroke-width="16" />
+        <!-- Cyan-Emerald Progress Arc: Circumference = 2 * PI * 70 = 439.82. 85% = 373.85. Offset = 439.82 - 373.85 = 65.97 -->
+        <circle cx="85" cy="85" r="70" fill="none" stroke="url(#healthGrad)" stroke-width="16"
+                stroke-dasharray="439.82" stroke-dashoffset="65.97" stroke-linecap="round" />
+        <defs>
+          <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#34d399" />
+            <stop offset="100%" stop-color="#06b6d4" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="gauge-center-text">
+        <span class="main-score">85</span>
+        <span class="max-score">/100</span>
+      </div>
+    </div>
+
+    <div class="score-badge-pill">
+      <span>⭐</span>
+      <span>Excellent</span>
+    </div>
+  </div>
+
+  <!-- CENTER: Score Breakdown Metrics -->
+  <div class="health-breakdown-card">
+    <h3>Score Breakdown</h3>
+
+    <!-- Metric 1: Savings Rate -->
+    <div class="score-metric-row">
+      <div class="score-metric-meta">
+        <span class="score-metric-title">Savings Rate</span>
+        <span class="score-metric-val">90/100</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill cyan" style="width: 90%;"></div>
+      </div>
+    </div>
+
+    <!-- Metric 2: Budget Discipline -->
+    <div class="score-metric-row">
+      <div class="score-metric-meta">
+        <span class="score-metric-title">Budget Discipline</span>
+        <span class="score-metric-val">85/100</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill cyan" style="width: 85%;"></div>
+      </div>
+    </div>
+
+    <!-- Metric 3: Expense Control -->
+    <div class="score-metric-row">
+      <div class="score-metric-meta">
+        <span class="score-metric-title">Expense Control</span>
+        <span class="score-metric-val">80/100</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill warm" style="width: 80%;"></div>
+      </div>
+    </div>
+
+    <!-- Metric 4: Goal Progress -->
+    <div class="score-metric-row">
+      <div class="score-metric-meta">
+        <span class="score-metric-title">Goal Progress</span>
+        <span class="score-metric-val">90/100</span>
+      </div>
+      <div class="score-bar-track">
+        <div class="score-bar-fill cyan" style="width: 90%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Cheerful Mascot with Growth Arrow -->
+  <div class="health-mascot-card">
+    <div class="cheer-speech-bubble">
+      Keep it up, Himani! 💜
+    </div>
+    <img src="{{ url_for('static', filename='images/robot-cheer.svg') }}" alt="Finora AI Cheering Mascot" />
+  </div>
+
+</div>
+
+<!-- BOTTOM: Trophy Banner Card -->
+<div class="trophy-banner-card">
+  <div class="trophy-banner-left">
+    <div class="trophy-icon-circle">🏆</div>
+    <div class="trophy-text">
+      Great job! You're on track to achieve your financial goals this month.
+    </div>
+  </div>
+
+  <a href="{{ url_for('reports') }}" class="btn-trophy-details">
+    <span>View Details</span>
+    <span>&rarr;</span>
+  </a>
+</div>
+{% endblock %}

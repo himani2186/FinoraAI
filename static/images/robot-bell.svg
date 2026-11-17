@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 480" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#4c1d95" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0f0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="redGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#ef4444" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metalBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="darkMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="purpleAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="bellGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="50%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    <filter id="bellGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Behind -->
+  <circle cx="210" cy="240" r="200" fill="url(#bgGlow)"/>
+
+  <!-- Energy Swirl / Ring around robot -->
+  <ellipse cx="200" cy="380" rx="140" ry="32" fill="none" stroke="#7c3aed" stroke-width="6" stroke-opacity="0.6" filter="url(#glow)"/>
+  <ellipse cx="200" cy="380" rx="170" ry="40" fill="none" stroke="#c084fc" stroke-width="2" stroke-opacity="0.4" stroke-dasharray="8 6"/>
+
+  <!-- ROBOT GROUP -->
+  <g transform="translate(40, 50)">
+    <!-- Antenna -->
+    <rect x="156" y="25" width="8" height="35" rx="4" fill="#64748b"/>
+    <circle cx="160" cy="20" r="11" fill="#06b6d4" filter="url(#glow)"/>
+    <circle cx="160" cy="20" r="5" fill="#ffffff"/>
+
+    <!-- Head -->
+    <rect x="90" y="60" width="140" height="105" rx="35" fill="url(#metalBody)" stroke="#94a3b8" stroke-width="2"/>
+    <!-- Head Ear Caps -->
+    <rect x="74" y="92" width="16" height="40" rx="8" fill="url(#purpleAccent)"/>
+    <rect x="230" y="92" width="16" height="40" rx="8" fill="url(#purpleAccent)"/>
+    <!-- Face Screen -->
+    <rect x="105" y="75" width="110" height="75" rx="22" fill="url(#screenGrad)" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.7"/>
+    <!-- Glowing Cute Eyes -->
+    <ellipse cx="135" cy="112" rx="14" ry="16" fill="#38bdf8" filter="url(#glow)"/>
+    <ellipse cx="185" cy="112" rx="14" ry="16" fill="#38bdf8" filter="url(#glow)"/>
+    <ellipse cx="135" cy="112" rx="8" ry="9" fill="#ffffff"/>
+    <ellipse cx="185" cy="112" rx="8" ry="9" fill="#ffffff"/>
+    <!-- Cute Smile -->
+    <path d="M 150 135 Q 160 142 170 135" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- Neck -->
+    <rect x="145" y="165" width="30" height="15" rx="5" fill="#334155"/>
+
+    <!-- Body Torso -->
+    <rect x="100" y="180" width="120" height="130" rx="32" fill="url(#metalBody)" stroke="#94a3b8" stroke-width="2"/>
+    <!-- Chest Plate -->
+    <rect x="115" y="195" width="90" height="85" rx="20" fill="url(#darkMetal)"/>
+    <!-- Chest Core Symbol (Shield / Heart) -->
+    <path d="M 160 215 L 180 225 L 175 250 L 160 262 L 145 250 L 140 225 Z" fill="url(#cyanGlow)" filter="url(#glow)"/>
+
+    <!-- Left Arm -->
+    <g transform="translate(55, 195)">
+      <path d="M 45 10 Q 15 35 30 75" fill="none" stroke="url(#metalBody)" stroke-width="20" stroke-linecap="round"/>
+      <circle cx="30" cy="78" r="14" fill="url(#purpleAccent)"/>
+    </g>
+
+    <!-- Right Arm holding Alarm Bell -->
+    <g transform="translate(195, 175)">
+      <path d="M 20 20 Q 55 10 75 -10" fill="none" stroke="url(#metalBody)" stroke-width="20" stroke-linecap="round"/>
+      <circle cx="75" cy="-10" r="14" fill="url(#purpleAccent)"/>
+    </g>
+
+    <!-- Glowing Red Alarm Bell (Held in Right Hand) -->
+    <g transform="translate(260, 130)" filter="url(#bellGlow)">
+      <!-- Bell Ambient Aura -->
+      <circle cx="25" cy="30" r="45" fill="url(#redGlow)"/>
+      <!-- Bell Top Loop -->
+      <circle cx="25" cy="8" r="7" fill="none" stroke="#f87171" stroke-width="4"/>
+      <!-- Bell Dome Body -->
+      <path d="M 10 32 C 10 18 16 12 25 12 C 34 12 40 18 40 32 C 40 40 48 44 48 46 L 2 46 C 2 44 10 40 10 32 Z" fill="url(#bellGrad)" stroke="#fca5a5" stroke-width="1.5"/>
+      <!-- Bell Rim Base -->
+      <ellipse cx="25" cy="46" rx="23" ry="5" fill="#ef4444" stroke="#fca5a5" stroke-width="1"/>
+      <!-- Bell Clapper -->
+      <circle cx="25" cy="51" r="5" fill="#fef08a" filter="url(#glow)"/>
+      <!-- Sound Wave Rays -->
+      <path d="M 50 15 Q 60 22 55 35" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 58 10 Q 72 20 65 40" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 0 15 Q -10 22 -5 35" fill="none" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+      <path d="M -8 10 Q -22 20 -15 40" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <!-- Floating Thruster Base -->
+    <g transform="translate(130, 310)">
+      <ellipse cx="30" cy="10" rx="30" ry="12" fill="#334155"/>
+      <polygon points="12,12 48,12 36,35 24,35" fill="url(#cyanGlow)" filter="url(#glow)"/>
+      <ellipse cx="30" cy="35" rx="12" ry="6" fill="#ffffff" filter="url(#glow)"/>
+    </g>
+  </g>
+</svg>

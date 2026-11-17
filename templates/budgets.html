@@ -1,0 +1,453 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Monthly Budget Planner{% endblock %}
+
+{% block head %}
+<style>
+  .budget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .budget-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+  .budget-subtitle {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+  .btn-set-budget {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1.35rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+  }
+  .btn-set-budget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+  }
+
+  /* 4 Top Category Cards */
+  .budget-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .b-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    padding: 1.5rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .b-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(124, 58, 237, 0.5);
+  }
+  .b-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .b-name {
+    font-size: 0.9rem;
+    color: #a78bfa;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+  .b-amount {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(15, 10, 30, 0.7);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+
+  /* Bottom Dual Analytics Cards */
+  .budget-bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 1.5rem;
+  }
+  .analytics-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.75rem 1.85rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+  }
+  .analytics-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Overall Budget Gauge Container */
+  .gauge-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .gauge-circle {
+    position: relative;
+    width: 150px;
+    height: 150px;
+  }
+  .gauge-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .gauge-info .status-badge {
+    color: #06b6d4;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+  }
+  .gauge-info .ratio {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .gauge-info .hint {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin-top: 0.35rem;
+  }
+
+  /* Trend Chart Canvas */
+  .trend-canvas-container {
+    height: 170px;
+    width: 100%;
+    position: relative;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .modal-box {
+    width: 100%;
+    max-width: 440px;
+    background: #160c2e;
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 24px;
+    padding: 2rem;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .modal-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-label {
+    display: block;
+    font-size: 0.82rem;
+    color: #a78bfa;
+    margin-bottom: 0.4rem;
+  }
+  .modal-input {
+    width: 100%;
+    background: rgba(15, 10, 30, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    font-size: 0.9rem;
+    outline: none;
+  }
+
+  @media (max-width: 1000px) {
+    .budget-cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .budget-bottom-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 550px) {
+    .budget-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="budget-header">
+  <div>
+    <h1 class="budget-title">Monthly Budget Planner</h1>
+    <p class="budget-subtitle">Set your spending limits and stay on track.</p>
+  </div>
+  <button type="button" class="btn-set-budget" onclick="openBudgetModal()">
+    <span>+</span> Set Budget
+  </button>
+</div>
+
+<!-- 4 Top Category Cards -->
+<div class="budget-cards-grid">
+  <!-- Food -->
+  <div class="b-card">
+    <div class="b-icon">🍴</div>
+    <div class="b-name">Food</div>
+    <div class="b-amount">₹5,000</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: 72%; background: #06b6d4;"></div>
+    </div>
+  </div>
+
+  <!-- Shopping -->
+  <div class="b-card">
+    <div class="b-icon">🛍️</div>
+    <div class="b-name">Shopping</div>
+    <div class="b-amount">₹4,000</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: 65%; background: #a855f7;"></div>
+    </div>
+  </div>
+
+  <!-- Transport -->
+  <div class="b-card">
+    <div class="b-icon">🚗</div>
+    <div class="b-name">Transport</div>
+    <div class="b-amount">₹2,000</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: 45%; background: #eab308;"></div>
+    </div>
+  </div>
+
+  <!-- Bills -->
+  <div class="b-card">
+    <div class="b-icon">💡</div>
+    <div class="b-name">Bills</div>
+    <div class="b-amount">₹3,000</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: 82%; background: #38bdf8;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Dual Analytics Cards -->
+<div class="budget-bottom-grid">
+  <!-- Overall Budget Gauge -->
+  <div class="analytics-card">
+    <h3 class="analytics-title">Overall Budget</h3>
+    <div class="gauge-wrapper">
+      <div class="gauge-circle">
+        <canvas id="overallGaugeChart"></canvas>
+        <div class="gauge-text">75%</div>
+      </div>
+      <div class="gauge-info">
+        <div class="status-badge">On Track</div>
+        <div class="ratio">₹14,000 / ₹18,000</div>
+        <div class="hint">You have ₹4,000 remaining for this month.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spending Trend Bar Chart -->
+  <div class="analytics-card">
+    <h3 class="analytics-title">Spending Trend</h3>
+    <div class="trend-canvas-container">
+      <canvas id="spendingTrendChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Set Budget Modal -->
+<div class="modal-overlay" id="budgetModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Set Monthly Budget</h3>
+      <button class="modal-close" onclick="closeBudgetModal()">&times;</button>
+    </div>
+
+    <form onsubmit="submitBudget(event)">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="modal-input" id="bCategory">
+          <option value="Food & Dining">Food & Dining</option>
+          <option value="Shopping">Shopping</option>
+          <option value="Transport">Transport</option>
+          <option value="Utilities">Bills & Utilities</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Health">Health</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Monthly Limit (₹)</label>
+        <input type="number" step="100" class="modal-input" id="bLimit" placeholder="e.g. 5000" required />
+      </div>
+
+      <button type="submit" class="btn-set-budget" style="width: 100%; justify-content: center; margin-top: 1.5rem; padding: 0.85rem;">
+        Save Budget
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openBudgetModal() {
+  document.getElementById('budgetModal').style.display = 'flex';
+}
+function closeBudgetModal() {
+  document.getElementById('budgetModal').style.display = 'none';
+}
+
+async function submitBudget(e) {
+  e.preventDefault();
+  const category = document.getElementById('bCategory').value;
+  const limit_amount = document.getElementById('bLimit').value;
+
+  try {
+    const res = await fetch('/api/budgets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ category, limit_amount })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('Budget updated!');
+      window.location.reload();
+    } else {
+      alert(data.error || 'Failed to save budget.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error saving budget.');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Gauge Donut
+  const gaugeCtx = document.getElementById('overallGaugeChart');
+  if (gaugeCtx) {
+    new Chart(gaugeCtx, {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [75, 25],
+          backgroundColor: ['#06b6d4', 'rgba(124, 58, 237, 0.2)'],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '80%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
+        }
+      }
+    });
+  }
+
+  // Weekly Bar Chart
+  const trendCtx = document.getElementById('spendingTrendChart');
+  if (trendCtx) {
+    new Chart(trendCtx, {
+      type: 'bar',
+      data: {
+        labels: ['W1', 'W2', 'W3', 'W4'],
+        datasets: [{
+          data: [3200, 4800, 2500, 3500],
+          backgroundColor: '#7c3aed',
+          borderRadius: 8,
+          hoverBackgroundColor: '#a855f7'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1e1040',
+            borderColor: '#7c3aed',
+            borderWidth: 1,
+            callbacks: {
+              label: function(c) { return ' ₹' + c.parsed.y; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#a78bfa' }
+          },
+          y: {
+            grid: { color: 'rgba(124, 58, 237, 0.1)' },
+            ticks: {
+              color: '#6b7280',
+              callback: function(v) { return '₹' + (v / 1000) + 'k'; }
+            }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

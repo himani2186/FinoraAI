@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Financial Reports{% endblock %}
+
+{% block head %}
+<style>
+  .reports-header {
+    margin-bottom: 2rem;
+  }
+  .reports-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+  }
+  .reports-subtitle {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+
+  .reports-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .r-stat-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 20px;
+    padding: 1.4rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+  }
+  .r-label {
+    font-size: 0.82rem;
+    color: #a78bfa;
+    margin-bottom: 0.4rem;
+  }
+  .r-value {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: #ffffff;
+  }
+
+  .reports-charts-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .r-chart-card {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    border-radius: 24px;
+    padding: 1.6rem 1.8rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+  }
+  .r-chart-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1.25rem;
+  }
+  .r-chart-box {
+    position: relative;
+    height: 260px;
+    width: 100%;
+  }
+
+  @media (max-width: 1000px) {
+    .reports-stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .reports-charts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-header">
+  <h1 class="reports-title">Financial Reports & Analytics</h1>
+  <p class="reports-subtitle">Comprehensive overview of your spending trends, savings, and performance.</p>
+</div>
+
+<!-- 4 Key Report Metrics -->
+<div class="reports-stats-grid">
+  <div class="r-stat-card">
+    <div class="r-label">6-Month Total Income</div>
+    <div class="r-value" style="color: #4ade80;">₹1,50,000</div>
+  </div>
+  <div class="r-stat-card">
+    <div class="r-label">6-Month Total Expenses</div>
+    <div class="r-value" style="color: #f87171;">₹75,000</div>
+  </div>
+  <div class="r-stat-card">
+    <div class="r-label">Net Accumulated Savings</div>
+    <div class="r-value" style="color: #c084fc;">₹75,000</div>
+  </div>
+  <div class="r-stat-card">
+    <div class="r-label">Avg. Savings Rate</div>
+    <div class="r-value" style="color: #38bdf8;">50.0%</div>
+  </div>
+</div>
+
+<div class="reports-charts-grid">
+  <!-- Multi-month comparison bar chart -->
+  <div class="r-chart-card">
+    <h3 class="r-chart-title">6-Month Income vs Expenses Comparison</h3>
+    <div class="r-chart-box">
+      <canvas id="monthlyCompChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Category breakdown chart -->
+  <div class="r-chart-card">
+    <h3 class="r-chart-title">Spending Distribution by Category</h3>
+    <div class="r-chart-box">
+      <canvas id="catPieChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Bar Chart
+  const compCtx = document.getElementById('monthlyCompChart');
+  if (compCtx) {
+    new Chart(compCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
+        datasets: [
+          {
+            label: 'Income',
+            data: [25000, 25000, 25000, 25000, 25000, 25000],
+            backgroundColor: '#06b6d4',
+            borderRadius: 6
+          },
+          {
+            label: 'Expenses',
+            data: [11500, 13200, 12000, 14000, 11800, 12500],
+            backgroundColor: '#ec4899',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#a78bfa' }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(124, 58, 237, 0.1)' },
+            ticks: { color: '#a78bfa' }
+          },
+          y: {
+            grid: { color: 'rgba(124, 58, 237, 0.1)' },
+            ticks: {
+              color: '#6b7280',
+              callback: function(v) { return '₹' + (v / 1000) + 'k'; }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Category Pie Chart
+  const pieCtx = document.getElementById('catPieChart');
+  if (pieCtx) {
+    new Chart(pieCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Food & Dining', 'Shopping', 'Transport', 'Utilities', 'Entertainment'],
+        datasets: [{
+          data: [35, 28, 18, 12, 7],
+          backgroundColor: ['#06b6d4', '#a855f7', '#38bdf8', '#eab308', '#ec4899'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: '#ffffff', boxWidth: 10 }
+          }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

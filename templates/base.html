@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Finora AI — Smart AI-powered budgeting and expense management" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <title>{% block title %}Finora AI{% endblock %}</title>
+
+  <!-- Favicon (inline SVG data-uri fallback) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%237c3aed'/><text y='.9em' font-size='70' x='15'>F</text></svg>" />
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+  <!-- Page-specific styles -->
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+{# ================================================================
+   APP SHELL — only rendered for authenticated pages
+   Landing / auth pages set `no_shell = true` in their block
+   ================================================================ #}
+{% if not no_shell | default(false) %}
+
+<!-- Mobile sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- Logo -->
+  <a href="{{ url_for('dashboard') }}" class="sidebar-logo">
+    <div class="sidebar-logo-icon">F</div>
+    <div class="sidebar-logo-text">
+      <span class="name">Finora AI</span>
+      <span class="tagline">Smart Finance</span>
+    </div>
+  </a>
+
+  <!-- Nav -->
+  <nav class="sidebar-nav" aria-label="Main navigation">
+
+    <span class="nav-section-label">Main</span>
+
+    <a href="{{ url_for('dashboard') }}"
+       class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <span class="nav-icon">📊</span>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="{{ url_for('sms_analyzer') }}"
+       class="nav-item {% if request.endpoint == 'sms_analyzer' %}active{% endif %}">
+      <span class="nav-icon">📱</span>
+      <span>SMS Analyzer</span>
+    </a>
+
+    <a href="{{ url_for('transactions') }}"
+       class="nav-item {% if request.endpoint == 'transactions' %}active{% endif %}">
+      <span class="nav-icon">💸</span>
+      <span>Transactions</span>
+    </a>
+
+    <a href="{{ url_for('budgets') }}"
+       class="nav-item {% if request.endpoint in ('budgets', 'budget_alerts') %}active{% endif %}">
+      <span class="nav-icon">🎯</span>
+      <span>Budgets</span>
+    </a>
+
+    <a href="{{ url_for('budget_alerts') }}"
+       class="nav-item {% if request.endpoint == 'budget_alerts' %}active{% endif %}"
+       style="padding-left: 2.8rem; font-size: 0.85rem; margin-top: -0.25rem;">
+      <span class="nav-icon" style="font-size: 0.95rem;">🔔</span>
+      <span>Budget Alerts</span>
+    </a>
+
+    <a href="{{ url_for('reports') }}"
+       class="nav-item {% if request.endpoint in ('reports', 'spending_prediction', 'financial_health') %}active{% endif %}">
+      <span class="nav-icon">📈</span>
+      <span>Reports</span>
+    </a>
+
+    <a href="{{ url_for('spending_prediction') }}"
+       class="nav-item {% if request.endpoint == 'spending_prediction' %}active{% endif %}"
+       style="padding-left: 2.8rem; font-size: 0.85rem; margin-top: -0.25rem;">
+      <span class="nav-icon" style="font-size: 0.95rem;">🔮</span>
+      <span>AI Prediction</span>
+    </a>
+
+    <a href="{{ url_for('financial_health') }}"
+       class="nav-item {% if request.endpoint == 'financial_health' %}active{% endif %}"
+       style="padding-left: 2.8rem; font-size: 0.85rem; margin-top: -0.25rem;">
+      <span class="nav-icon" style="font-size: 0.95rem;">❤️‍🩹</span>
+      <span>Health Score</span>
+    </a>
+
+    <span class="nav-section-label">AI</span>
+
+    <a href="{{ url_for('ai_assistant') }}"
+       class="nav-item {% if request.endpoint == 'ai_assistant' %}active{% endif %}">
+      <span class="nav-icon">🤖</span>
+      <span>AI Assistant</span>
+    </a>
+
+    <span class="nav-section-label">Account</span>
+
+    <a href="{{ url_for('profile') }}"
+       class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+      <span class="nav-icon">👤</span>
+      <span>Settings / Profile</span>
+    </a>
+
+    <a href="{{ url_for('logout') }}" class="nav-item logout-btn">
+      <span class="nav-icon">🚪</span>
+      <span>Logout</span>
+    </a>
+
+  </nav>
+
+  <!-- AI Assistant quick-launch bubble -->
+  <a href="{{ url_for('ai_assistant') }}" class="sidebar-ai-bubble">
+    <span class="ai-icon">🤖</span>
+    <div class="ai-text">
+      <div class="title">Ask Finora</div>
+      <div class="subtitle">AI financial advisor</div>
+    </div>
+  </a>
+
+</aside>
+<!-- /sidebar -->
+
+<!-- ============================================================
+     MAIN WRAPPER
+     ============================================================ -->
+<div class="main-wrapper">
+
+  <!-- TOP NAVBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <!-- Mobile hamburger -->
+      <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+
+      <!-- Search -->
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search transactions, budgets…" aria-label="Global search" />
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Notification bell linking to Budget Alerts -->
+      <a href="{{ url_for('budget_alerts') }}" class="icon-btn" aria-label="Notifications" title="2 Budget Alerts" style="text-decoration:none; position:relative; display:inline-flex; align-items:center; justify-content:center;">
+        🔔
+        <span class="notification-badge" style="position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:0.68rem; font-weight:800; border-radius:50%; width:18px; height:18px; display:flex; align-items:center; justify-content:center; border:2px solid #0f0a1e;">2</span>
+      </a>
+
+      <!-- User menu -->
+      <a href="{{ url_for('profile') }}" class="user-menu" aria-label="Profile">
+        <div class="user-avatar">
+          {% if current_user and current_user.photo %}
+            <img src="{{ current_user.photo }}" alt="{{ current_user.full_name }}" />
+          {% elif current_user %}
+            {{ current_user.full_name[0] | upper }}
+          {% else %}
+            U
+          {% endif %}
+        </div>
+        <span class="user-name">
+          {% if current_user %}{{ current_user.full_name.split()[0] }}{% else %}User{% endif %}
+        </span>
+      </a>
+    </div>
+  </header>
+  <!-- /topbar -->
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            <span>
+              {% if category == 'success' %}✅
+              {% elif category in ('danger', 'error') %}❌
+              {% elif category == 'warning' %}⚠️
+              {% else %}ℹ️
+              {% endif %}
+            </span>
+            <span style="flex:1">{{ message }}</span>
+            <button class="alert-close" aria-label="Close">✕</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- PAGE CONTENT -->
+  <main class="page-content">
+{% endif %}
+
+    {% block content %}{% endblock %}
+
+{% if not no_shell | default(false) %}
+  </main>
+
+</div>
+<!-- /main-wrapper -->
+{% endif %}
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<!-- Global utilities -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<!-- Page-specific scripts -->
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

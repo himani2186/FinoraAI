@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 550" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#9333ea" stop-opacity="0.5"/>
+      <stop offset="60%" stop-color="#7c3aed" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0f0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metalBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="purpleAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Behind -->
+  <circle cx="250" cy="280" r="220" fill="url(#bgGlow)"/>
+
+  <!-- Floating Hologram Chart -->
+  <g transform="translate(310, 160)" filter="url(#glow)">
+    <!-- Base Glow -->
+    <ellipse cx="60" cy="130" rx="70" ry="20" fill="none" stroke="#06b6d4" stroke-width="3" stroke-opacity="0.8" stroke-dasharray="6,4"/>
+    <ellipse cx="60" cy="130" rx="45" ry="12" fill="#06b6d4" fill-opacity="0.2"/>
+    <!-- Hologram Chart Card -->
+    <rect x="0" y="0" width="120" height="90" rx="16" fill="#1e1040" fill-opacity="0.85" stroke="#06b6d4" stroke-width="2.5"/>
+    <!-- Chart Bars -->
+    <rect x="20" y="55" width="12" height="25" rx="3" fill="#7c3aed"/>
+    <rect x="38" y="40" width="12" height="40" rx="3" fill="#a855f7"/>
+    <rect x="56" y="25" width="12" height="55" rx="3" fill="#06b6d4"/>
+    <rect x="74" y="35" width="12" height="45" rx="3" fill="#22c55e"/>
+    <rect x="92" y="18" width="12" height="62" rx="3" fill="#38bdf8"/>
+    <!-- Trend Line -->
+    <path d="M 26 50 Q 56 15 98 12" fill="none" stroke="#67e8f9" stroke-width="3"/>
+    <!-- Glowing Points -->
+    <circle cx="26" cy="50" r="3" fill="#fff"/>
+    <circle cx="62" cy="22" r="3" fill="#fff"/>
+    <circle cx="98" cy="12" r="4" fill="#38bdf8" filter="url(#glow)"/>
+    <!-- Projector Beams -->
+    <polygon points="60,130 5,90 115,90" fill="url(#cyanGlow)" fill-opacity="0.15"/>
+  </g>
+
+  <!-- Robot Mascot Group -->
+  <g transform="translate(40, 60)">
+    <!-- Antenna -->
+    <rect x="180" y="30" width="8" height="30" rx="4" fill="#64748b"/>
+    <circle cx="184" cy="25" r="10" fill="#06b6d4" filter="url(#glow)"/>
+    <circle cx="184" cy="25" r="5" fill="#ffffff"/>
+
+    <!-- Head -->
+    <rect x="100" y="55" width="168" height="130" rx="55" fill="url(#metalBody)" stroke="#a78bfa" stroke-width="3"/>
+    <!-- Ears / Headset -->
+    <rect x="85" y="90" width="18" height="60" rx="9" fill="url(#purpleAccent)" filter="url(#glow)"/>
+    <rect x="265" y="90" width="18" height="60" rx="9" fill="url(#purpleAccent)" filter="url(#glow)"/>
+
+    <!-- Visor / Face Screen -->
+    <rect x="115" y="75" width="138" height="90" rx="35" fill="#0b081a" stroke="#7c3aed" stroke-width="2.5"/>
+    
+    <!-- Visor Reflection -->
+    <path d="M 125 90 Q 180 75 240 85" stroke="rgba(255,255,255,0.15)" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+    <!-- Glowing Eyes (Visor Screen) -->
+    <g filter="url(#glow)">
+      <!-- Left Eye -->
+      <rect x="135" y="98" width="34" height="42" rx="17" fill="#06b6d4"/>
+      <ellipse cx="152" cy="119" rx="14" ry="17" fill="#67e8f9"/>
+      <circle cx="148" cy="114" r="5" fill="#ffffff"/>
+      <!-- Right Eye -->
+      <rect x="199" y="98" width="34" height="42" rx="17" fill="#06b6d4"/>
+      <ellipse cx="216" cy="119" rx="14" ry="17" fill="#67e8f9"/>
+      <circle cx="212" cy="114" r="5" fill="#ffffff"/>
+      <!-- Friendly Smile -->
+      <path d="M 170 148 Q 184 156 198 148" fill="none" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Neck -->
+    <rect x="160" y="183" width="48" height="18" rx="8" fill="#475569"/>
+
+    <!-- Body Torso -->
+    <path d="M 120 200 L 248 200 L 268 340 L 100 340 Z" fill="url(#metalBody)" stroke="#7c3aed" stroke-width="2.5"/>
+    <!-- Chest Core -->
+    <rect x="145" y="225" width="78" height="65" rx="20" fill="#0b081a" stroke="#a855f7" stroke-width="2"/>
+    <circle cx="184" cy="257" r="20" fill="url(#purpleAccent)" filter="url(#glow)"/>
+    <circle cx="184" cy="257" r="10" fill="#06b6d4"/>
+    <polygon points="184,249 191,262 177,262" fill="#ffffff"/>
+
+    <!-- Left Arm -->
+    <g>
+      <circle cx="95" cy="225" r="18" fill="url(#purpleAccent)"/>
+      <path d="M 90 235 Q 70 290 85 330" fill="none" stroke="url(#metalBody)" stroke-width="24" stroke-linecap="round"/>
+      <circle cx="85" cy="330" r="16" fill="url(#purpleAccent)"/>
+    </g>
+
+    <!-- Right Arm (Extended towards holographic chart) -->
+    <g>
+      <circle cx="273" cy="225" r="18" fill="url(#purpleAccent)"/>
+      <path d="M 275 235 Q 315 260 345 270" fill="none" stroke="url(#metalBody)" stroke-width="24" stroke-linecap="round"/>
+      <!-- Hand palm open toward chart -->
+      <ellipse cx="355" cy="272" rx="16" ry="14" fill="url(#purpleAccent)"/>
+      <ellipse cx="362" cy="270" rx="8" ry="6" fill="#06b6d4" filter="url(#glow)"/>
+    </g>
+  </g>
+</svg>

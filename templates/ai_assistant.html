@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Finora AI — Gemini Financial Assistant{% endblock %}
+
+{% block head %}
+<style>
+  .assistant-header {
+    margin-bottom: 1.5rem;
+  }
+  .assistant-title {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .assistant-subtitle {
+    color: #a78bfa;
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+  }
+
+  .assistant-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: center;
+    min-height: calc(100vh - 220px);
+  }
+
+  /* Left Robot Mascot Column */
+  .mascot-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .mascot-visual {
+    width: 280px;
+    filter: drop-shadow(0 15px 35px rgba(124, 58, 237, 0.4));
+    animation: floatAssistant 4s ease-in-out infinite;
+  }
+  @keyframes floatAssistant {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* Chat Box Container */
+  .chat-container {
+    background: rgba(30, 16, 64, 0.65);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 24px;
+    padding: 1.75rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(14px);
+    display: flex;
+    flex-direction: column;
+    height: 540px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .chat-messages::-webkit-scrollbar {
+    width: 6px;
+  }
+  .chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 999px;
+  }
+
+  /* Message Bubbles */
+  .msg-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .msg-user {
+    justify-content: flex-end;
+  }
+  .msg-ai {
+    justify-content: flex-start;
+  }
+
+  .ai-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .user-avatar-bubble {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #4c1d95;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+  }
+
+  .bubble {
+    max-width: 75%;
+    padding: 0.9rem 1.25rem;
+    font-size: 0.93rem;
+    line-height: 1.5;
+  }
+  .bubble-user {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    color: #ffffff;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+  }
+  .bubble-ai {
+    background: rgba(15, 10, 30, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    color: #f1f5f9;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Quick Suggestion Chips */
+  .quick-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .q-chip {
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.78rem;
+    color: #c084fc;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .q-chip:hover {
+    background: rgba(124, 58, 237, 0.35);
+    color: #ffffff;
+  }
+
+  /* Chat Input Bar */
+  .chat-input-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(15, 10, 30, 0.85);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 16px;
+    padding: 0.5rem 0.6rem 0.5rem 1.2rem;
+    transition: border-color 0.2s;
+  }
+  .chat-input-bar:focus-within {
+    border-color: #a855f7;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  }
+  .chat-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .chat-input::placeholder {
+    color: #64748b;
+  }
+  .btn-send {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #06b6d4 0%, #38bdf8 100%);
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+    transition: transform 0.2s;
+  }
+  .btn-send:hover {
+    transform: scale(1.05);
+  }
+
+  @media (max-width: 900px) {
+    .assistant-layout {
+      grid-template-columns: 1fr;
+    }
+    .mascot-col {
+      display: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="assistant-header">
+  <h1 class="assistant-title">
+    <span>🤖</span> Gemini AI Financial Assistant
+  </h1>
+  <p class="assistant-subtitle">Ask anything about your spending, budgeting or saving goals.</p>
+</div>
+
+<div class="assistant-layout">
+  <!-- Left Side: Friendly 3D Robot Mascot -->
+  <div class="mascot-col">
+    <img src="{{ url_for('static', filename='images/robot-bulb.svg') }}" alt="Finora AI Mascot" class="mascot-visual" />
+    <div style="font-size: 0.85rem; color: #a78bfa; margin-top: 1rem;">
+      Powered by Google Gemini API
+    </div>
+  </div>
+
+  <!-- Right Side: Chat Container -->
+  <div class="chat-container">
+    <div class="chat-messages" id="chatMessages">
+      <!-- Default conversation matching Finora reference image -->
+      <div class="msg-row msg-user">
+        <div class="bubble bubble-user">
+          How can I reduce my food expenses?
+        </div>
+        <div class="user-avatar-bubble">
+          {{ current_user.full_name[0] | upper if current_user else 'H' }}
+        </div>
+      </div>
+
+      <div class="msg-row msg-ai">
+        <div class="ai-avatar">🤖</div>
+        <div class="bubble bubble-ai">
+          You can try meal planning, avoid eating out frequently, and cook at home. This could help you save up to 30% on food expenses. 💡
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggested Quick Prompts -->
+    <div class="quick-chips">
+      <span class="q-chip" onclick="askQuick('How can I save ₹5,000 this month?')">💰 Save ₹5k this month</span>
+      <span class="q-chip" onclick="askQuick('Analyze my budget allocation')">📊 Review my budget</span>
+      <span class="q-chip" onclick="askQuick('What is the 50/30/20 rule?')">📚 50/30/20 Rule</span>
+    </div>
+
+    <!-- Input Bar -->
+    <form class="chat-input-bar" id="chatForm" onsubmit="handleSend(event)">
+      <input type="text" id="userInput" class="chat-input" placeholder="Type your question..." autocomplete="off" />
+      <button type="submit" class="btn-send" id="sendBtn" title="Send Message">
+        ➤
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function askQuick(text) {
+  document.getElementById('userInput').value = text;
+  handleSend(new Event('submit'));
+}
+
+async function handleSend(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('userInput');
+  const message = input.value.trim();
+  if (!message) return;
+
+  const messagesDiv = document.getElementById('chatMessages');
+
+  // Append user bubble
+  const userRow = document.createElement('div');
+  userRow.className = 'msg-row msg-user';
+  userRow.innerHTML = `
+    <div class="bubble bubble-user">${escapeHtml(message)}</div>
+    <div class="user-avatar-bubble">{{ current_user.full_name[0] | upper if current_user else 'H' }}</div>
+  `;
+  messagesDiv.appendChild(userRow);
+  input.value = '';
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  // Append temporary loading AI bubble
+  const aiRow = document.createElement('div');
+  aiRow.className = 'msg-row msg-ai';
+  aiRow.innerHTML = `
+    <div class="ai-avatar">🤖</div>
+    <div class="bubble bubble-ai" id="tempAiMsg" style="color: #a78bfa;">Finora is thinking...</div>
+  `;
+  messagesDiv.appendChild(aiRow);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+  try {
+    const res = await fetch('/api/ai-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message })
+    });
+    const data = await res.json();
+
+    const tempBubble = document.getElementById('tempAiMsg');
+    if (data.success && data.data && data.data.reply) {
+      tempBubble.removeAttribute('id');
+      tempBubble.style.color = '#f1f5f9';
+      tempBubble.innerText = data.data.reply;
+    } else {
+      tempBubble.removeAttribute('id');
+      tempBubble.style.color = '#fca5a5';
+      tempBubble.innerText = data.error || 'Finora is offline right now. Make sure GEMINI_API_KEY is configured in your .env file.';
+    }
+  } catch (err) {
+    console.error(err);
+    const tempBubble = document.getElementById('tempAiMsg');
+    if (tempBubble) {
+      tempBubble.removeAttribute('id');
+      tempBubble.style.color = '#fca5a5';
+      tempBubble.innerText = 'Sorry, could not connect to Gemini AI server.';
+    }
+  }
+
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 450 420" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.35"/>
+      <stop offset="60%" stop-color="#06b6d4" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#0f0a1e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="metalBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="50%" stop-color="#cbd5e1"/>
+      <stop offset="100%" stop-color="#64748b"/>
+    </linearGradient>
+    <linearGradient id="darkMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <circle cx="225" cy="210" r="190" fill="url(#bgGlow)"/>
+
+  <!-- Background Growth Chart Arrows 📈 -->
+  <g transform="translate(180, 40)" opacity="0.85" filter="url(#glow)">
+    <!-- Cyan Grid Line -->
+    <path d="M 0 240 L 70 180 L 130 200 L 210 110 L 260 60" fill="none" stroke="#06b6d4" stroke-width="4" stroke-linecap="round"/>
+    <!-- Green Accent Line -->
+    <path d="M 10 260 L 80 200 L 140 220 L 220 130 L 270 70" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-dasharray="6,4"/>
+    <!-- Glowing Data Points -->
+    <circle cx="70" cy="180" r="6" fill="#38bdf8"/>
+    <circle cx="130" cy="200" r="6" fill="#38bdf8"/>
+    <circle cx="210" cy="110" r="7" fill="#34d399"/>
+    <circle cx="260" cy="60" r="9" fill="#10b981" filter="url(#glow)"/>
+    <!-- Big Arrowhead -->
+    <polygon points="260,45 275,65 250,70" fill="#10b981"/>
+  </g>
+
+  <!-- Cheering Robot Mascot -->
+  <g transform="translate(130, 80)">
+    <!-- Antenna -->
+    <rect x="91" y="25" width="8" height="35" rx="4" fill="#64748b"/>
+    <circle cx="95" cy="20" r="10" fill="#34d399" filter="url(#glow)"/>
+    <circle cx="95" cy="20" r="5" fill="#ffffff"/>
+
+    <!-- Head -->
+    <rect x="25" y="60" width="140" height="105" rx="35" fill="url(#metalBody)" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="9" y="92" width="16" height="40" rx="8" fill="#7c3aed"/>
+    <rect x="165" y="92" width="16" height="40" rx="8" fill="#7c3aed"/>
+
+    <!-- Face Screen -->
+    <rect x="40" y="75" width="110" height="75" rx="22" fill="url(#screenGrad)" stroke="#34d399" stroke-width="2" stroke-opacity="0.8"/>
+    <!-- Joyful Cheerful Eye Arcs (^_^) -->
+    <path d="M 60 115 Q 70 100 80 115" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" filter="url(#glow)"/>
+    <path d="M 110 115 Q 120 100 130 115" fill="none" stroke="#34d399" stroke-width="5" stroke-linecap="round" filter="url(#glow)"/>
+    <!-- Open Happy Smile -->
+    <path d="M 82 130 Q 95 145 108 130 Z" fill="#34d399" filter="url(#glow)"/>
+
+    <!-- Body Torso -->
+    <rect x="35" y="175" width="120" height="120" rx="32" fill="url(#metalBody)" stroke="#94a3b8" stroke-width="2"/>
+    <rect x="50" y="190" width="90" height="75" rx="20" fill="url(#darkMetal)"/>
+    <circle cx="95" cy="225" r="16" fill="#34d399" filter="url(#glow)"/>
+
+    <!-- Left Arm Raised High in Cheer -->
+    <path d="M 45 190 Q 0 160 -15 110" fill="none" stroke="url(#metalBody)" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="-15" cy="105" r="14" fill="#7c3aed"/>
+
+    <!-- Right Arm Raised High in Cheer -->
+    <path d="M 145 190 Q 190 160 205 110" fill="none" stroke="url(#metalBody)" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="205" cy="105" r="14" fill="#7c3aed"/>
+
+    <!-- Thruster base -->
+    <ellipse cx="95" cy="295" rx="28" ry="12" fill="#334155"/>
+    <polygon points="78,298 112,298 102,320 88,320" fill="url(#cyanGlow)" filter="url(#glow)"/>
+  </g>
+</svg>
