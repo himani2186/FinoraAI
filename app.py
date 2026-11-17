@@ -48,15 +48,18 @@ def create_app(config_name: str | None = None) -> Flask:
     db.init_app(app)
 
     with app.app_context():
-        db.create_all()
-        seed_categories()
-        # Auto-seed demo account if empty
-        if not User.query.filter_by(email='himani@example.com').first():
-            demo = User(full_name='Himani', email='himani@example.com')
-            demo.set_password('password123')
-            db.session.add(demo)
-            db.session.commit()
-            seed_sample_data(demo.id)
+        try:
+            db.create_all()
+            seed_categories()
+            # Auto-seed demo account if empty
+            if not User.query.filter_by(email='himani@example.com').first():
+                demo = User(full_name='Himani', email='himani@example.com')
+                demo.set_password('password123')
+                db.session.add(demo)
+                db.session.commit()
+                seed_sample_data(demo.id)
+        except Exception as db_err:
+            app.logger.warning(f"Database initialization deferred or encountered: {db_err}")
 
     # Register routes
     _register_routes(app)
