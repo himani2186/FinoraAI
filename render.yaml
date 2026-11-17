@@ -2,7 +2,7 @@ services:
   - type: web
     name: finora-ai
     env: python
-    region: singapore
+    region: oregon
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app --workers 2 --threads 4 --timeout 60"
@@ -22,4 +22,5 @@ databases:
   - name: finora-db
     databaseName: finora
     user: finora_user
+    region: oregon
     plan: free
