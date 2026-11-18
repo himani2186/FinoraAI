@@ -422,15 +422,76 @@
   <!-- Monthly Budget -->
   <div class="stat-card">
     <div class="stat-info">
-      <div class="label">Monthly Budget</div>
-      <div class="value">₹20,000</div>
+      <div class="label">Monthly Income</div>
+      <div class="value">₹{{ '{:,.0f}'.format(user.monthly_income|float if user.monthly_income else 0) }}</div>
       <span class="trend-badge" style="background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.3);">
-        &darr; 46% left
+        Set below
       </span>
     </div>
     <div class="stat-icon-wrapper icon-budget">
       🎯
     </div>
+  </div>
+</div>
+
+<!-- Income Setup Card -->
+<div id="income-card" style="
+  background: rgba(30, 16, 64, 0.65);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  border-radius: 20px;
+  padding: 1.25rem 1.6rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.2);
+">
+  <div style="display:flex; align-items:center; gap:1rem;">
+    <span style="font-size:1.5rem;">💰</span>
+    <div>
+      <div style="font-size:0.95rem; font-weight:700; color:#ffffff;">Monthly Income</div>
+      <div style="font-size:0.82rem; color:#a78bfa;">
+        {% if user.monthly_income and user.monthly_income|float > 0 %}
+          Currently set to ₹{{ '{:,.0f}'.format(user.monthly_income|float) }}. Update below.
+        {% else %}
+          Set your monthly income so all intelligence pages use real data.
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+    <input id="income-input" type="number" min="0" step="100"
+      value="{{ user.monthly_income|float|int if user.monthly_income else '' }}"
+      placeholder="e.g. 50000"
+      style="
+        background: rgba(15, 10, 30, 0.8);
+        border: 1px solid rgba(124, 58, 237, 0.4);
+        border-radius: 10px;
+        color: #ffffff;
+        padding: 0.6rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        width: 180px;
+        outline: none;
+      "
+    />
+    <button onclick="saveIncome()" style="
+      background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(124,58,237,0.5);
+      transition: transform 0.2s;
+    " onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+      Save
+    </button>
+    <span id="income-msg" style="font-size:0.82rem; color:#4ade80; display:none;">✓ Saved!</span>
   </div>
 </div>
 
@@ -603,6 +664,37 @@
 
 {% block scripts %}
 <script>
+function saveIncome() {
+  const input = document.getElementById('income-input');
+  const msg = document.getElementById('income-msg');
+  const val = parseFloat(input.value);
+  if (isNaN(val) || val < 0) {
+    alert('Please enter a valid income amount');
+    return;
+  }
+  fetch('/api/set-income', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ income: val })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      if (msg) {
+        msg.style.display = 'inline';
+        setTimeout(() => { msg.style.display = 'none'; }, 2500);
+      }
+      setTimeout(() => { window.location.reload(); }, 600);
+    } else {
+      alert(data.error || 'Failed to update income');
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Network error while updating income');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // 1. Expense Breakdown Donut Chart
   const donutCtx = document.getElementById('expenseBreakdownChart');

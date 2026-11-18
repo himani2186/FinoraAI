@@ -15,6 +15,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(256), nullable=False)
     photo = db.Column(db.String(512), nullable=True, default=None)
     currency = db.Column(db.String(10), default='INR')
+    monthly_income = db.Column(db.Numeric(12, 2), default=0, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships
@@ -51,6 +52,7 @@ class User(db.Model):
             'email': self.email,
             'photo': self.photo,
             'currency': self.currency,
+            'monthly_income': float(self.monthly_income or 0),
             'created_at': self.created_at.isoformat(),
         }
 

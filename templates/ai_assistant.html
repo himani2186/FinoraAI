@@ -309,7 +309,13 @@ async function handleSend(e) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: message })
     });
-    const data = await res.json();
+    
+    let data;
+    try {
+      data = await res.json();
+    } catch (parseErr) {
+      data = { success: false, error: 'Server temporarily busy. Please ask again.' };
+    }
 
     const tempBubble = document.getElementById('tempAiMsg');
     if (data.success && data.data && data.data.reply) {
@@ -319,7 +325,7 @@ async function handleSend(e) {
     } else {
       tempBubble.removeAttribute('id');
       tempBubble.style.color = '#fca5a5';
-      tempBubble.innerText = data.error || 'Finora is offline right now. Make sure GEMINI_API_KEY is configured in your .env file.';
+      tempBubble.innerText = data.error || 'Finora is offline right now. Please try asking again in a moment!';
     }
   } catch (err) {
     console.error(err);
@@ -327,7 +333,7 @@ async function handleSend(e) {
     if (tempBubble) {
       tempBubble.removeAttribute('id');
       tempBubble.style.color = '#fca5a5';
-      tempBubble.innerText = 'Sorry, could not connect to Gemini AI server.';
+      tempBubble.innerText = 'Finora AI is processing your request. Please try asking again in a moment!';
     }
   }
 

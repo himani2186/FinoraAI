@@ -70,12 +70,17 @@ def run_tests():
     assert b"Welcome back" in res.data or b"Dashboard" in res.data
     print(" [PASS] POST /login (Authenticated session)")
 
-    # 5. Dashboard
+    # 5. Dashboard & Income API
+    res_inc = client.post('/api/set-income', json={'income': 60000})
+    assert res_inc.status_code == 200 and res_inc.get_json()['success'] is True
+    print(" [PASS] POST /api/set-income -> Income updated to 60,000")
+
     res = client.get('/dashboard')
     assert res.status_code == 200
     assert b"Total Income" in res.data
+    assert b"60,000" in res.data
     assert b"Expense Breakdown" in res.data
-    print(" [PASS] GET /dashboard")
+    print(" [PASS] GET /dashboard (with dynamic income 60,000)")
 
     # 6. SMS Analyzer
     res = client.get('/sms-analyzer')

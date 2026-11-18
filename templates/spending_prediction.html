@@ -304,7 +304,11 @@
     </div>
   </div>
 
-  <div>
+  <div style="display: flex; align-items: center; gap: 0.75rem;">
+    <button onclick="promptEditIncome()" class="month-dropdown-btn" style="border-color: rgba(74, 222, 128, 0.4); color: #4ade80; cursor: pointer;">
+      <span>💰 Income: ₹{{ "{:,.0f}".format(income) }}</span>
+      <span style="font-size: 0.75rem; opacity: 0.75;">✎ Edit</span>
+    </button>
     <button class="month-dropdown-btn">
       <span>Next Month</span>
       <span>▼</span>
@@ -319,19 +323,21 @@
   <div class="pred-chart-card">
     <div class="pred-chart-header">
       <div>
-        <div class="pred-metric-title">Predicted Spending</div>
+        <div class="pred-metric-title">Predicted Spending (Next Month)</div>
         <div class="pred-metric-val">
-          <span>₹14,800</span>
-          <span class="trend-down-pill">
-            <span>↓ 6%</span>
-            <span>vs last month</span>
+          <span>₹{{ "{:,.0f}".format(predicted) }}</span>
+          <span class="trend-down-pill" style="{{ 'background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.35); color:#f87171;' if spending_pct > 75 else '' }}">
+            <span>{{ spending_pct }}% of income</span>
           </span>
+        </div>
+        <div style="font-size: 0.82rem; color: #a78bfa; margin-top: 0.35rem;">
+          Based on your monthly income of <strong style="color: #4ade80;">₹{{ "{:,.0f}".format(income) }}</strong>
         </div>
       </div>
     </div>
 
     <!-- Chart Container -->
-    <div style="height: 180px; position: relative;">
+    <div style="height: 170px; position: relative; margin-top: 0.5rem;">
       <canvas id="predictionChart"></canvas>
     </div>
   </div>
@@ -347,23 +353,29 @@
       <div class="insight-item">
         <div class="check-circle-green">✓</div>
         <div class="insight-text">
-          Your spending is expected to decrease by <strong>6%</strong> next month.
+          Based on your monthly income of <strong>₹{{ "{:,.0f}".format(income) }}</strong>, you are projected to spend <strong>₹{{ "{:,.0f}".format(predicted) }}</strong> (<strong>{{ spending_pct }}%</strong> of income).
         </div>
       </div>
 
       <div class="insight-item">
         <div class="check-circle-green">✓</div>
         <div class="insight-text">
-          Food &amp; Dining may increase by <strong>~15%</strong>.
+          {% if potential_savings > 0 %}
+            You can save around <strong>₹{{ "{:,.0f}".format(potential_savings) }}</strong> (<strong>{{ savings_pct }}%</strong> of income) if you stick to this forecast.
+          {% else %}
+            Your spending matches your income — consider cutting non-essential expenses to save.
+          {% endif %}
         </div>
       </div>
 
+      {% if cat_breakdown %}
       <div class="insight-item">
         <div class="check-circle-green">✓</div>
         <div class="insight-text">
-          You can save around <strong>₹800</strong> if you stick to your current budget.
+          Top projected expense: <strong>{{ cat_breakdown[0].category }}</strong> (~₹{{ "{:,.0f}".format(cat_breakdown[0].predicted) }}).
         </div>
       </div>
+      {% endif %}
     </div>
 
     <div style="font-size: 0.8rem; color: #64748b; margin-top: 1rem;">
@@ -378,39 +390,18 @@
 
   <!-- Category-wise Prediction -->
   <div class="cat-pred-section">
-    <h3>Category-wise Prediction</h3>
+    <h3>Category-wise Prediction (Next Month)</h3>
     <div class="cat-cards-grid">
-      <!-- Food -->
+      {% for cat in cat_breakdown[:4] %}
       <div class="cat-mini-card">
-        <div class="cat-mini-icon">🍽️</div>
-        <div class="cat-mini-name">Food</div>
-        <div class="cat-mini-amt">₹3,800</div>
-        <span class="badge-pct-diff red">(+15%)</span>
+        <div class="cat-mini-icon">{{ cat.icon }}</div>
+        <div class="cat-mini-name">{{ cat.category }}</div>
+        <div class="cat-mini-amt">₹{{ "{:,.0f}".format(cat.predicted) }}</div>
+        <span class="badge-pct-diff {{ 'red' if cat.diff_pct > 0 else ('green' if cat.diff_pct < 0 else 'neutral') }}">
+          {{ '+' if cat.diff_pct > 0 else '' }}{{ cat.diff_pct }}%
+        </span>
       </div>
-
-      <!-- Shopping -->
-      <div class="cat-mini-card">
-        <div class="cat-mini-icon">🛒</div>
-        <div class="cat-mini-name">Shopping</div>
-        <div class="cat-mini-amt">₹3,200</div>
-        <span class="badge-pct-diff green">(-5%)</span>
-      </div>
-
-      <!-- Transport -->
-      <div class="cat-mini-card">
-        <div class="cat-mini-icon">🚗</div>
-        <div class="cat-mini-name">Transport</div>
-        <div class="cat-mini-amt">₹1,400</div>
-        <span class="badge-pct-diff green">(-8%)</span>
-      </div>
-
-      <!-- Bills -->
-      <div class="cat-mini-card">
-        <div class="cat-mini-icon">⚡</div>
-        <div class="cat-mini-name">Bills</div>
-        <div class="cat-mini-amt">₹2,100</div>
-        <span class="badge-pct-diff neutral">(0%)</span>
-      </div>
+      {% endfor %}
     </div>
   </div>
 
@@ -428,6 +419,27 @@
 
 {% block scripts %}
 <script>
+  function promptEditIncome() {
+    const current = {{ income|int }};
+    const val = prompt('Enter your monthly income (₹):', current);
+    if (val !== null && !isNaN(parseFloat(val)) && parseFloat(val) > 0) {
+      fetch('/api/set-income', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ income: parseFloat(val) })
+      })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) window.location.reload();
+        else alert(d.error || 'Failed to update income');
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Network error updating income');
+      });
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('predictionChart');
     if (!ctx) return;
@@ -440,10 +452,10 @@
     new Chart(chartCtx, {
       type: 'line',
       data: {
-        labels: ['Nov', 'Dec', 'Jan'],
+        labels: {{ chart_labels | tojson }},
         datasets: [{
           label: 'Spending',
-          data: [15700, 15200, 14800],
+          data: {{ chart_expenses | tojson }},
           borderColor: '#06b6d4',
           borderWidth: 3,
           tension: 0.4,
@@ -452,7 +464,7 @@
           pointBackgroundColor: '#06b6d4',
           pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
-          pointRadius: [5, 5, 7],
+          pointRadius: Array({{ chart_labels | length - 1 }}).fill(5).concat([7]),
           pointHoverRadius: 8
         }]
       },
@@ -481,8 +493,7 @@
           },
           y: {
             display: false,
-            min: 13000,
-            max: 16500
+            beginAtZero: true
           }
         }
       }

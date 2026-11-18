@@ -171,6 +171,11 @@
       <input type="email" id="profEmail" class="profile-input" value="{{ current_user.email if current_user else 'himani@example.com' }}" readonly style="opacity: 0.75; cursor: not-allowed;" />
     </div>
 
+    <div class="form-group">
+      <label>Monthly Income (₹)</label>
+      <input type="number" id="profIncome" class="profile-input" min="0" step="100" value="{{ current_user.monthly_income|float|int if current_user and current_user.monthly_income else '' }}" placeholder="e.g. 50000" />
+    </div>
+
     <button type="submit" class="btn-update-profile" id="saveProfBtn">
       Update Profile <span>&rarr;</span>
     </button>
@@ -183,15 +188,20 @@
 async function updateProfile(e) {
   e.preventDefault();
   const name = document.getElementById('profName').value.trim();
+  const incomeVal = document.getElementById('profIncome').value.trim();
   const btn = document.getElementById('saveProfBtn');
   btn.innerText = 'Updating...';
   btn.disabled = true;
 
   try {
+    const payload = { full_name: name };
+    if (incomeVal !== '') {
+      payload.monthly_income = parseFloat(incomeVal) || 0;
+    }
     const res = await fetch('/api/update-profile', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ full_name: name })
+      body: JSON.stringify(payload)
     });
     const data = await res.json();
     if (data.success) {

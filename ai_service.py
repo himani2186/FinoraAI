@@ -22,13 +22,22 @@ _SYSTEM_PROMPT = (
 )
 
 
-def _call_gemini_api(prompt: str, api_key: str, timeout: int = 5) -> Optional[str]:
-    """Call Google Gemini API via lightweight HTTP request with fast timeout."""
+def _call_gemini_api(prompt: str, api_key: str, timeout: int = 4) -> Optional[str]:
+    """
+    Call Google Gemini API via lightweight HTTP request with fast timeout.
+    Google AI Studio API keys start with 'AIzaSy'.
+    """
     if not api_key or api_key == 'your-gemini-api-key-here':
         return None
 
+    # If key is not in standard Gemini API key format (e.g. starts with AQ. or other OAuth token),
+    # skip external request to avoid HTTP 400 and slow timeouts
+    if not api_key.startswith('AIzaSy'):
+        return None
+
     ctx = ssl.create_default_context()
-    models = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-2.5-flash']
+    # Try gemini-1.5-flash or gemini-2.0-flash first
+    models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest']
 
     payload = json.dumps({
         'contents': [{'parts': [{'text': prompt}]}],

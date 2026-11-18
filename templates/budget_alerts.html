@@ -411,7 +411,7 @@
   <div class="mascot-alert-card">
     <img src="{{ url_for('static', filename='images/robot-bell.svg') }}" alt="Finora AI Bell Mascot" />
     <div class="mascot-speech-bubble">
-      Try to keep your food expenses in check!
+      {{ speech }}
     </div>
   </div>
 
@@ -430,9 +430,9 @@
           <svg class="donut-circle-svg" width="120" height="120" viewBox="0 0 120 120">
             <!-- Background Ring -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(15, 10, 30, 0.8)" stroke-width="12" />
-            <!-- Gradient Progress Arc (72% of 301.59 = 217.15) -->
+            <!-- Gradient Progress Arc -->
             <circle cx="60" cy="60" r="48" fill="none" stroke="url(#donutGrad)" stroke-width="12"
-                    stroke-dasharray="301.59" stroke-dashoffset="84.4" stroke-linecap="round" />
+                    stroke-dasharray="301.59" stroke-dashoffset="{{ donut_offset }}" stroke-linecap="round" />
             <defs>
               <linearGradient id="donutGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#06b6d4" />
@@ -441,7 +441,7 @@
             </defs>
           </svg>
           <div class="donut-center-label">
-            <span class="num">72%</span>
+            <span class="num">{{ pct_used }}%</span>
             <span class="txt">Used</span>
           </div>
         </div>
@@ -453,7 +453,7 @@
               <span class="ov-stat-dot" style="background:#3b82f6;"></span>
               <span>Total Budget</span>
             </div>
-            <span class="ov-stat-val">₹15,000</span>
+            <span class="ov-stat-val">₹{{ "{:,.0f}".format(total_budget) }}</span>
           </div>
 
           <div class="ov-stat-item">
@@ -461,7 +461,7 @@
               <span class="ov-stat-dot" style="background:#a855f7;"></span>
               <span>Spent So Far</span>
             </div>
-            <span class="ov-stat-val">₹10,800</span>
+            <span class="ov-stat-val">₹{{ "{:,.0f}".format(total_spent) }}</span>
           </div>
 
           <div class="ov-stat-item">
@@ -469,7 +469,7 @@
               <span class="ov-stat-dot" style="background:#10b981;"></span>
               <span>Remaining</span>
             </div>
-            <span class="ov-stat-val" style="color:#4ade80;">₹4,200</span>
+            <span class="ov-stat-val" style="color:#4ade80;">₹{{ "{:,.0f}".format(remaining) }}</span>
           </div>
         </div>
       </div>
@@ -482,61 +482,27 @@
         <a href="{{ url_for('budgets') }}" class="card-link">View All &rarr;</a>
       </div>
 
-      <!-- Food & Dining -->
-      <div class="cat-bar-item">
-        <div class="cat-bar-meta">
-          <span class="cat-bar-name">🍽️ Food & Dining</span>
-          <div>
-            <span class="cat-bar-numbers">₹3,000 / ₹4,000</span>
-            <span class="cat-bar-pct">75%</span>
+      {% if cat_data %}
+        {% for cat in cat_data %}
+        <div class="cat-bar-item">
+          <div class="cat-bar-meta">
+            <span class="cat-bar-name">{{ cat.icon }} {{ cat.category }}</span>
+            <div>
+              <span class="cat-bar-numbers">₹{{ "{:,.0f}".format(cat.spent) }} / ₹{{ "{:,.0f}".format(cat.budget) }}</span>
+              <span class="cat-bar-pct" style="color: {{ cat.color }};">{{ cat.pct }}%</span>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: {{ cat.pct }}%; background: {{ cat.color }};"></div>
           </div>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill" style="width: 75%;"></div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center; padding: 1.5rem 0; color: #64748b; font-size: 0.9rem;">
+          No budgets set for this month.<br>
+          <a href="{{ url_for('budgets') }}" style="color:#a78bfa; font-weight:700;">Set up budgets →</a>
         </div>
-      </div>
-
-      <!-- Shopping -->
-      <div class="cat-bar-item">
-        <div class="cat-bar-meta">
-          <span class="cat-bar-name">🛒 Shopping</span>
-          <div>
-            <span class="cat-bar-numbers">₹2,500 / ₹4,000</span>
-            <span class="cat-bar-pct">63%</span>
-          </div>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" style="width: 63%;"></div>
-        </div>
-      </div>
-
-      <!-- Transport -->
-      <div class="cat-bar-item">
-        <div class="cat-bar-meta">
-          <span class="cat-bar-name">🚗 Transport</span>
-          <div>
-            <span class="cat-bar-numbers">₹1,200 / ₹2,000</span>
-            <span class="cat-bar-pct">60%</span>
-          </div>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" style="width: 60%;"></div>
-        </div>
-      </div>
-
-      <!-- Bills & Utilities -->
-      <div class="cat-bar-item">
-        <div class="cat-bar-meta">
-          <span class="cat-bar-name">⚡ Bills & Utilities</span>
-          <div>
-            <span class="cat-bar-numbers">₹2,000 / ₹2,500</span>
-            <span class="cat-bar-pct">80%</span>
-          </div>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill" style="width: 80%;"></div>
-        </div>
-      </div>
+      {% endif %}
     </div>
   </div>
 
@@ -551,7 +517,11 @@
     </svg>
 
     <h2>Budget Alert!</h2>
-    <p>You've used 90% of your Food &amp; Dining budget!</p>
+    {% if critical_alert %}
+    <p>You've used {{ critical_alert.pct }}% of your {{ critical_alert.category }} budget!</p>
+    {% else %}
+    <p>All budgets are looking good this month! 🎉</p>
+    {% endif %}
 
     <a href="{{ url_for('budgets') }}" class="btn-view-alert">
       <span>View Details</span>
@@ -564,32 +534,29 @@
 <!-- BOTTOM: RECENT ALERTS LIST -->
 <div class="recent-alerts-card">
   <div class="card-head-row">
-    <h3>Recent Alerts</h3>
+    <h3>Budget Status</h3>
     <a href="{{ url_for('budgets') }}" class="card-link">View All &rarr;</a>
   </div>
 
-  <!-- Alert 1 -->
-  <div class="recent-alert-row">
-    <div class="recent-alert-left">
-      <div class="alert-circle-badge red">!</div>
-      <div class="alert-row-meta">
-        <div class="title">Food &amp; Dining budget nearly exceeded</div>
-        <div class="desc">You've spent ₹3,600 out of ₹4,000 (90%).</div>
+  {% if cat_data %}
+    {% for cat in cat_data %}
+    <div class="recent-alert-row">
+      <div class="recent-alert-left">
+        <div class="alert-circle-badge {{ 'red' if cat.pct >= 70 else 'green' }}">
+          {{ '!' if cat.pct >= 70 else '✓' }}
+        </div>
+        <div class="alert-row-meta">
+          <div class="title">{{ cat.category }} — {{ cat.pct }}% used</div>
+          <div class="desc">Spent ₹{{ "{:,.0f}".format(cat.spent) }} of ₹{{ "{:,.0f}".format(cat.budget) }} budget.</div>
+        </div>
       </div>
+      <div class="alert-row-time">This month</div>
     </div>
-    <div class="alert-row-time">Today, 6:45 PM</div>
-  </div>
-
-  <!-- Alert 2 -->
-  <div class="recent-alert-row">
-    <div class="recent-alert-left">
-      <div class="alert-circle-badge green">✓</div>
-      <div class="alert-row-meta">
-        <div class="title">Transport budget is on track</div>
-        <div class="desc">You've used 60% of your transport budget.</div>
-      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center; padding: 1.5rem 0; color: #64748b; font-size: 0.9rem;">
+      No budget data yet. <a href="{{ url_for('budgets') }}" style="color:#a78bfa; font-weight:700;">Set up budgets →</a>
     </div>
-    <div class="alert-row-time">Today, 10:20 AM</div>
-  </div>
+  {% endif %}
 </div>
 {% endblock %}
