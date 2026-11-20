@@ -309,11 +309,78 @@ def _register_routes(app: Flask) -> None:
         current_budgets = Budget.query.filter_by(
             user_id=uid, month=now.month, year=now.year
         ).all()
+
+        # Synchronize spent_amount from actual transactions for accuracy
+        for b in current_budgets:
+            spent = db.session.query(db.func.coalesce(db.func.sum(Transaction.amount), 0)).filter(
+                Transaction.user_id == uid,
+                Transaction.category == b.category,
+                Transaction.type == 'expense',
+                db.extract('month', Transaction.date) == now.month,
+                db.extract('year', Transaction.date) == now.year,
+            ).scalar()
+            b.spent_amount = float(spent)
+        db.session.commit()
+
+        total_budget = sum(float(b.limit_amount) for b in current_budgets)
+        total_spent  = sum(float(b.spent_amount or 0) for b in current_budgets)
+        remaining    = max(0.0, total_budget - total_spent)
+        pct_used     = round(total_spent / total_budget * 100) if total_budget > 0 else 0
+
+        CATEGORY_ICONS = {
+            'Food & Dining': '🍴', 'Food': '🍴', 'Shopping': '🛍️',
+            'Transport': '🚗', 'Utilities': '💡', 'Bills & Utilities': '💡',
+            'Entertainment': '🎬', 'Health': '💊', 'Education': '📚',
+            'Travel': '✈️', 'Rent': '🏠', 'Other': '📂'
+        }
+        CATEGORY_COLORS = {
+            'Food & Dining': '#06b6d4', 'Food': '#06b6d4', 'Shopping': '#a855f7',
+            'Transport': '#eab308', 'Utilities': '#38bdf8', 'Bills & Utilities': '#38bdf8',
+            'Entertainment': '#ec4899', 'Health': '#10b981', 'Other': '#8b5cf6'
+        }
+
+        budget_cards = []
+        for b in current_budgets:
+            pct = round(float(b.spent_amount or 0) / float(b.limit_amount) * 100) if b.limit_amount and float(b.limit_amount) > 0 else 0
+            budget_cards.append({
+                'id': b.id,
+                'category': b.category,
+                'icon': CATEGORY_ICONS.get(b.category, '📂'),
+                'color': CATEGORY_COLORS.get(b.category, '#7c3aed'),
+                'limit_amount': float(b.limit_amount),
+                'spent_amount': float(b.spent_amount or 0),
+                'remaining': max(0.0, float(b.limit_amount) - float(b.spent_amount or 0)),
+                'pct': min(pct, 100),
+                'raw_pct': pct,
+            })
+
+        # Weekly spending data for this month for the trend chart
+        weekly_spending = [0, 0, 0, 0]
+        txns = Transaction.query.filter(
+            Transaction.user_id == uid,
+            Transaction.type == 'expense',
+            db.extract('month', Transaction.date) == now.month,
+            db.extract('year', Transaction.date) == now.year,
+        ).all()
+        for t in txns:
+            day = t.date.day if hasattr(t.date, 'day') else 1
+            week_idx = min(3, (day - 1) // 7)
+            weekly_spending[week_idx] += float(t.amount)
+        weekly_spending = [round(w) for w in weekly_spending]
+        if sum(weekly_spending) == 0 and total_spent > 0:
+            weekly_spending = [round(total_spent * 0.25), round(total_spent * 0.3), round(total_spent * 0.2), round(total_spent * 0.25)]
+
         return render_template(
             'budgets.html',
             user=user,
             categories=categories,
             budgets=current_budgets,
+            budget_cards=budget_cards,
+            total_budget=total_budget,
+            total_spent=total_spent,
+            remaining=remaining,
+            pct_used=pct_used,
+            weekly_spending=weekly_spending,
             current_month=now.strftime('%B %Y'),
         )
 
@@ -744,8 +811,18 @@ def _register_routes(app: Flask) -> None:
             user_id=uid, category=category, month=month, year=year
         ).first()
 
+        # Calculate actual spent amount from transactions for this category, month, and year
+        spent = db.session.query(db.func.coalesce(db.func.sum(Transaction.amount), 0)).filter(
+            Transaction.user_id == uid,
+            Transaction.category == category,
+            Transaction.type == 'expense',
+            db.extract('month', Transaction.date) == month,
+            db.extract('year', Transaction.date) == year,
+        ).scalar()
+
         if existing:
             existing.limit_amount = limit
+            existing.spent_amount = float(spent)
             db.session.commit()
             return jsonify({'success': True, 'data': existing.to_dict()}), 200
 
@@ -753,7 +830,7 @@ def _register_routes(app: Flask) -> None:
             user_id=uid,
             category=category,
             limit_amount=limit,
-            spent_amount=0,
+            spent_amount=float(spent),
             month=month,
             year=year,
         )

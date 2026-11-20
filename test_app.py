@@ -104,11 +104,16 @@ def run_tests():
     assert b"All Transactions" in res.data
     print(" [PASS] GET /transactions")
 
-    # 9. Budgets Page
+    # 9. Budgets Page & API
+    res_b = client.post('/api/budgets', json={'category': 'Food & Dining', 'limit_amount': 7500})
+    assert res_b.status_code in [200, 201] and res_b.get_json()['success'] is True
+    print(" [PASS] POST /api/budgets -> Set Food & Dining limit to 7,500")
+
     res = client.get('/budgets')
     assert res.status_code == 200
     assert b"Monthly Budget Planner" in res.data
-    print(" [PASS] GET /budgets")
+    assert b"7,500" in res.data
+    print(" [PASS] GET /budgets (with updated 7,500 budget limit)")
 
     # 10. AI Assistant Page
     res = client.get('/ai-assistant')

@@ -242,47 +242,34 @@
   </button>
 </div>
 
-<!-- 4 Top Category Cards -->
+<!-- Category Budget Cards Grid -->
 <div class="budget-cards-grid">
-  <!-- Food -->
-  <div class="b-card">
-    <div class="b-icon">🍴</div>
-    <div class="b-name">Food</div>
-    <div class="b-amount">₹5,000</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 72%; background: #06b6d4;"></div>
+  {% if budget_cards %}
+    {% for b in budget_cards %}
+    <div class="b-card" onclick="editBudget('{{ b.category }}', {{ b.limit_amount }})" style="cursor: pointer;" title="Click to edit budget">
+      <div class="b-icon">{{ b.icon }}</div>
+      <div class="b-name">{{ b.category }}</div>
+      <div class="b-amount">₹{{ "{:,.0f}".format(b.limit_amount) }}</div>
+      <div style="font-size: 0.8rem; color: #a78bfa; margin-bottom: 0.5rem;">
+        Spent: ₹{{ "{:,.0f}".format(b.spent_amount) }} ({{ b.raw_pct }}%)
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width: {{ b.pct }}%; background: {{ b.color }};"></div>
+      </div>
     </div>
-  </div>
-
-  <!-- Shopping -->
-  <div class="b-card">
-    <div class="b-icon">🛍️</div>
-    <div class="b-name">Shopping</div>
-    <div class="b-amount">₹4,000</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 65%; background: #a855f7;"></div>
+    {% endfor %}
+  {% else %}
+    <div class="b-card" style="grid-column: 1 / -1; padding: 2.5rem 1rem;">
+      <div class="b-icon">🎯</div>
+      <div class="b-name" style="font-size: 1.1rem; color: #ffffff;">No Budgets Set Yet</div>
+      <div style="color: #a78bfa; font-size: 0.85rem; margin: 0.5rem 0 1rem 0;">
+        Set your first category budget to track and control your monthly expenses.
+      </div>
+      <button type="button" class="btn-set-budget" onclick="openBudgetModal()">
+        <span>+</span> Set First Budget
+      </button>
     </div>
-  </div>
-
-  <!-- Transport -->
-  <div class="b-card">
-    <div class="b-icon">🚗</div>
-    <div class="b-name">Transport</div>
-    <div class="b-amount">₹2,000</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 45%; background: #eab308;"></div>
-    </div>
-  </div>
-
-  <!-- Bills -->
-  <div class="b-card">
-    <div class="b-icon">💡</div>
-    <div class="b-name">Bills</div>
-    <div class="b-amount">₹3,000</div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 82%; background: #38bdf8;"></div>
-    </div>
-  </div>
+  {% endif %}
 </div>
 
 <!-- Dual Analytics Cards -->
@@ -293,19 +280,21 @@
     <div class="gauge-wrapper">
       <div class="gauge-circle">
         <canvas id="overallGaugeChart"></canvas>
-        <div class="gauge-text">75%</div>
+        <div class="gauge-text">{{ pct_used }}%</div>
       </div>
       <div class="gauge-info">
-        <div class="status-badge">On Track</div>
-        <div class="ratio">₹14,000 / ₹18,000</div>
-        <div class="hint">You have ₹4,000 remaining for this month.</div>
+        <div class="status-badge" style="color: {{ '#ef4444' if pct_used >= 90 else ('#eab308' if pct_used >= 70 else '#06b6d4') }};">
+          {{ 'Critical Alert' if pct_used >= 90 else ('Caution' if pct_used >= 70 else 'On Track') }}
+        </div>
+        <div class="ratio">₹{{ "{:,.0f}".format(total_spent) }} / ₹{{ "{:,.0f}".format(total_budget) }}</div>
+        <div class="hint">You have ₹{{ "{:,.0f}".format(remaining) }} remaining for this month.</div>
       </div>
     </div>
   </div>
 
   <!-- Spending Trend Bar Chart -->
   <div class="analytics-card">
-    <h3 class="analytics-title">Spending Trend</h3>
+    <h3 class="analytics-title">Weekly Spending Trend</h3>
     <div class="trend-canvas-container">
       <canvas id="spendingTrendChart"></canvas>
     </div>
@@ -324,18 +313,26 @@
       <div class="form-group">
         <label class="form-label">Category</label>
         <select class="modal-input" id="bCategory">
-          <option value="Food & Dining">Food & Dining</option>
-          <option value="Shopping">Shopping</option>
-          <option value="Transport">Transport</option>
-          <option value="Utilities">Bills & Utilities</option>
-          <option value="Entertainment">Entertainment</option>
-          <option value="Health">Health</option>
+          {% if categories %}
+            {% for c in categories %}
+              {% if c.name not in ['Salary', 'Freelance', 'Investment'] %}
+              <option value="{{ c.name }}">{{ c.icon }} {{ c.name }}</option>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <option value="Food & Dining">🍔 Food & Dining</option>
+            <option value="Shopping">🛍️ Shopping</option>
+            <option value="Transport">🚗 Transport</option>
+            <option value="Utilities">💡 Utilities</option>
+            <option value="Entertainment">🎬 Entertainment</option>
+            <option value="Health">💊 Health</option>
+          {% endif %}
         </select>
       </div>
 
       <div class="form-group">
         <label class="form-label">Monthly Limit (₹)</label>
-        <input type="number" step="100" class="modal-input" id="bLimit" placeholder="e.g. 5000" required />
+        <input type="number" step="100" min="1" class="modal-input" id="bLimit" placeholder="e.g. 5000" required />
       </div>
 
       <button type="submit" class="btn-set-budget" style="width: 100%; justify-content: center; margin-top: 1.5rem; padding: 0.85rem;">
@@ -355,6 +352,14 @@ function closeBudgetModal() {
   document.getElementById('budgetModal').style.display = 'none';
 }
 
+function editBudget(category, limit) {
+  const sel = document.getElementById('bCategory');
+  if (sel) sel.value = category;
+  const inp = document.getElementById('bLimit');
+  if (inp) inp.value = limit;
+  openBudgetModal();
+}
+
 async function submitBudget(e) {
   e.preventDefault();
   const category = document.getElementById('bCategory').value;
@@ -368,7 +373,7 @@ async function submitBudget(e) {
     });
     const data = await res.json();
     if (data.success) {
-      alert('Budget updated!');
+      closeBudgetModal();
       window.location.reload();
     } else {
       alert(data.error || 'Failed to save budget.');
@@ -383,12 +388,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Gauge Donut
   const gaugeCtx = document.getElementById('overallGaugeChart');
   if (gaugeCtx) {
+    const pct = {{ pct_used }};
     new Chart(gaugeCtx, {
       type: 'doughnut',
       data: {
         datasets: [{
-          data: [75, 25],
-          backgroundColor: ['#06b6d4', 'rgba(124, 58, 237, 0.2)'],
+          data: [pct, Math.max(0, 100 - pct)],
+          backgroundColor: [
+            pct >= 90 ? '#ef4444' : (pct >= 70 ? '#eab308' : '#06b6d4'),
+            'rgba(124, 58, 237, 0.2)'
+          ],
           borderWidth: 0,
         }]
       },
@@ -412,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
       data: {
         labels: ['W1', 'W2', 'W3', 'W4'],
         datasets: [{
-          data: [3200, 4800, 2500, 3500],
+          data: {{ weekly_spending | tojson }},
           backgroundColor: '#7c3aed',
           borderRadius: 8,
           hoverBackgroundColor: '#a855f7'
@@ -428,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
             borderColor: '#7c3aed',
             borderWidth: 1,
             callbacks: {
-              label: function(c) { return ' ₹' + c.parsed.y; }
+              label: function(c) { return ' ₹' + c.parsed.y.toLocaleString('en-IN'); }
             }
           }
         },
